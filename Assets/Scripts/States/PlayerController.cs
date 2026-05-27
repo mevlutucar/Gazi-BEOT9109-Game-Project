@@ -1,7 +1,5 @@
-using System.Xml;
 using UnityEngine;
 
-// State Pattern - Temel Arayüz
 public interface IPlayerState
 {
     void EnterState(PlayerController player);
@@ -17,6 +15,9 @@ public class PlayerController : MonoBehaviour
     public CameraController cameraController;
     public UIManager uiManager;
 
+    [Header("Weapon References")]
+    public GameObject rifleObject; // Inspector'dan SM_Wep_Rifle_01 buraya atanacak
+
     [Header("Player Stats")]
     public float maxHealth = 100f;
     public float currentHealth;
@@ -29,6 +30,7 @@ public class PlayerController : MonoBehaviour
     public float runSpeed = 6f;
     public float jumpForce = 5f;
     public float gravity = -9.81f;
+    public float turnSmoothSpeed = 10f; // Karakterin dönüþ hýzý
 
     [Header("Audio Clips")]
     public AudioClip walkSound, runSound, jumpSound, shootSound, emptyMagSound;
@@ -53,7 +55,6 @@ public class PlayerController : MonoBehaviour
         currentHealth = maxHealth;
         currentStamina = maxStamina;
 
-        // Baþlangýç durumu
         TransitionToState(unarmedState);
         uiManager.UpdateUI(this);
     }
@@ -62,6 +63,7 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.Instance.isPaused) return;
 
+        // Yere deðme kontrolünü saðlamlaþtýrýyoruz
         isGrounded = controller.isGrounded;
         anim.SetBool("IsGrounded", isGrounded);
 
@@ -90,6 +92,56 @@ public class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(clip);
     }
 
+    // WASD ve Yön Tuþlarý ile Hareket + Rotasyon Merkezi Fonksiyonu
+    public void HandleMovementAndRotation()
+    {
+        float horizontal = Input.GetAxisRaw("Horizontal"); // A, D, Sol, Sað
+        float vertical = Input.GetAxisRaw("Vertical");     // W, S, Yukarý, Aþaðý
+
+        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+        bool isMoving = direction.magnitude >= 0.1f;
+
+        bool isRunning = Input.GetKey(KeyCode.LeftShift) && isMoving && currentStamina > 0;
+        float currentSpeed = isRunning ? runSpeed : (isMoving ? walkSpeed : 0f);
+
+        if (isMoving)
+        {
+            // Hareket edilen yöne doðru yumuþak dönüþ (Slerp)
+            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSmoothSpeed);
+
+            // Ýleri doðru hareket et
+            controller.Move(direction * currentSpeed * Time.deltaTime);
+        }
+
+        // Animasyon ve Kamera FOV Kontrolü
+        anim.SetFloat("Speed", currentSpeed);
+        cameraController.SetFOV(isRunning ? 50f : 65f);
+
+        // Ses ve Stamina
+        if (isRunning)
+        {
+            PlaySound(runSound);
+            currentStamina -= Time.deltaTime * 10f;
+            uiManager.UpdateUI(this);
+        }
+        else if (isMoving)
+        {
+            PlaySound(walkSound);
+        }
+
+        // Zýplama
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && currentStamina >= 15f)
+        {
+            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+            anim.SetTrigger("Jump");
+            PlaySound(jumpSound);
+            currentStamina -= 15f;
+            uiManager.UpdateUI(this);
+        }
+    }
+
     public void TakeDamage(float damage)
     {
         if (currentState == deadState) return;
@@ -98,10 +150,7 @@ public class PlayerController : MonoBehaviour
         anim.SetTrigger("Hit");
         uiManager.UpdateUI(this);
 
-        if (currentHealth <= 0)
-        {
-            TransitionToState(deadState);
-        }
+        if (currentHealth <= 0) TransitionToState(deadState);
     }
 
     private void RecoverStamina()
