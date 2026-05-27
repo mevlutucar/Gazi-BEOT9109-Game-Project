@@ -128,7 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 12820205}
-  - component: {fileID: 12820206}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -153,20 +152,6 @@ Transform:
   - {fileID: 330585546}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &12820206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12820204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7499138fb2d0ac747bf960678b994ac7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
-  animator: {fileID: 850762978}
-  rifleObject: {fileID: 1033690444}
 --- !u!1001 &21081122
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -959,8 +944,9 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
-  m_Name: Character Camera
+  m_Name: Character_Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1084,6 +1070,19 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a57d3a732a4edc44a9112618af83e064, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  playerCamera: {fileID: 330585545}
 --- !u!1001 &342204117
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1314,7 +1313,7 @@ GameObject:
   - component: {fileID: 410087040}
   - component: {fileID: 410087042}
   m_Layer: 0
-  m_Name: Directional Light
+  m_Name: Directional_Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1717,7 +1716,7 @@ PrefabInstance:
         clip 'Walking'\n\tFrom animation clip 'Firing Rifle'\n\tFrom animation clip
         'Grab Rifle From The Side And Put Back'\n\tFrom animation clip 'Hit Reaction'\n\tFrom
         animation clip 'Put Back Rifle'\n\tFrom animation clip 'Rifle Aiming Idle'\n\tFrom
-        animation clip 'Rifle Idle'\n\tand more ..."
+        animation clip 'Rifle Death'\n\tand more ..."
       objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -2434,7 +2433,7 @@ GameObject:
   - component: {fileID: 832575519}
   - component: {fileID: 832575518}
   m_Layer: 0
-  m_Name: Global Volume
+  m_Name: Global_Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2552,35 +2551,38 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 9500000, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
   m_PrefabInstance: {fileID: 504708430}
   m_PrefabAsset: {fileID: 0}
---- !u!54 &850762979
-Rigidbody:
+--- !u!114 &850762979
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850762977}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!136 &850762980
-CapsuleCollider:
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cc08a1092c029346acb7f5a93b3592c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  anim: {fileID: 850762978}
+  controller: {fileID: 850762980}
+  cameraController: {fileID: 330585548}
+  uiManager: {fileID: 995242910}
+  maxHealth: 100
+  currentHealth: 0
+  maxStamina: 100
+  currentStamina: 0
+  ammoCount: 30
+  walkSpeed: 3
+  runSpeed: 6
+  jumpForce: 5
+  gravity: -9.81
+  walkSound: {fileID: 0}
+  runSound: {fileID: 0}
+  jumpSound: {fileID: 0}
+  shootSound: {fileID: 0}
+  emptyMagSound: {fileID: 0}
+--- !u!143 &850762980
+CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2594,14 +2596,16 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 1.1
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.08, z: 0}
 --- !u!1001 &860087251
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2812,11 +2816,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4282584874226646, guid: 6068f0d0298633f4d97cd682123592b9, type: 3}
   m_PrefabInstance: {fileID: 992206419}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1033690444 stripped
+--- !u!1 &995242909
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 1567117433773298, guid: 0267fbb609476414682f06cfeb8621eb, type: 3}
-  m_PrefabInstance: {fileID: 2099579130}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 995242911}
+  - component: {fileID: 995242910}
+  m_Layer: 0
+  m_Name: UI_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &995242910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995242909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6524eedeb445794fa16165f333d8ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  healthBar: {fileID: 0}
+  staminaBar: {fileID: 0}
+  ammoText: {fileID: 0}
+  weaponIcon: {fileID: 0}
+  fistSprite: {fileID: 0}
+  rifleSprite: {fileID: 0}
+  dayNightBar: {fileID: 0}
+  dayNightText: {fileID: 0}
+  crosshairPanel: {fileID: 0}
+  deathPanel: {fileID: 0}
+  pausePanel: {fileID: 0}
+  daysSurvivedText: {fileID: 0}
+  pauseFlashingText: {fileID: 0}
+--- !u!4 &995242911
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995242909}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1034980687
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3675,6 +3731,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4750971155366516, guid: 6c4ed3a4489024f4d99e53011a9f24b0, type: 3}
   m_PrefabInstance: {fileID: 1273445268}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1325434098
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1325434099}
+  - component: {fileID: 1325434100}
+  m_Layer: 0
+  m_Name: Game_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1325434099
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1325434098}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1325434100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1325434098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4a4b6e34972477429ba0969144b4fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  uiManager: {fileID: 995242910}
+  isPaused: 0
+  daysSurvived: 0
 --- !u!1001 &1369726112
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6226,3 +6329,5 @@ SceneRoots:
   - {fileID: 326201207}
   - {fileID: 1506887974}
   - {fileID: 12820205}
+  - {fileID: 995242911}
+  - {fileID: 1325434099}
