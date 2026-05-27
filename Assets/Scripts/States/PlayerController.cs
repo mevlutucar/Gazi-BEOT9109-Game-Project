@@ -30,7 +30,9 @@ public class PlayerController : MonoBehaviour
     public float runSpeed = 6f;
     public float jumpForce = 5f;
     public float gravity = -9.81f;
-    public float turnSmoothSpeed = 10f; // Karakterin dönüþ hýzý
+
+    // Eski turnSmoothSpeed yerine, saniye baþýna kaç derece döneceðini belirten turnSpeed ekledik.
+    public float turnSpeed = 150f;
 
     [Header("Audio Clips")]
     public AudioClip walkSound, runSound, jumpSound, shootSound, emptyMagSound;
@@ -63,7 +65,6 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.Instance.isPaused) return;
 
-        // Yere deðme kontrolünü saðlamlaþtýrýyoruz
         isGrounded = controller.isGrounded;
         anim.SetBool("IsGrounded", isGrounded);
 
@@ -92,34 +93,41 @@ public class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(clip);
     }
 
-    // WASD ve Yön Tuþlarý ile Hareket + Rotasyon Merkezi Fonksiyonu
+    // GÜNCELLENMÝÞ HAREKET VE ROTASYON SÝSTEMÝ
     public void HandleMovementAndRotation()
     {
-        float horizontal = Input.GetAxisRaw("Horizontal"); // A, D, Sol, Sað
-        float vertical = Input.GetAxisRaw("Vertical");     // W, S, Yukarý, Aþaðý
+        // Girdileri alýyoruz
+        float turnInput = Input.GetAxisRaw("Horizontal"); // A, D, Sol, Sað
+        float moveInput = Input.GetAxisRaw("Vertical");   // W, S, Yukarý, Aþaðý
 
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
-        bool isMoving = direction.magnitude >= 0.1f;
+        // 1. Sadece Kendi Etrafýnda Dönme (Rotasyon) - Yürümeden baðýmsýz
+        if (turnInput != 0)
+        {
+            float rotationAmount = turnInput * turnSpeed * Time.deltaTime;
+            transform.Rotate(0f, rotationAmount, 0f);
+        }
 
-        bool isRunning = Input.GetKey(KeyCode.LeftShift) && isMoving && currentStamina > 0;
+        // 2. Ýleri ve Geri Yürüme (Hareket)
+        bool isMoving = moveInput != 0;
+
+        // Sadece ileri giderken (moveInput > 0) koþmaya izin veriyoruz
+        bool isRunning = Input.GetKey(KeyCode.LeftShift) && isMoving && moveInput > 0 && currentStamina > 0;
+
         float currentSpeed = isRunning ? runSpeed : (isMoving ? walkSpeed : 0f);
 
         if (isMoving)
         {
-            // Hareket edilen yöne doðru yumuþak dönüþ (Slerp)
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSmoothSpeed);
-
-            // Ýleri doðru hareket et
-            controller.Move(direction * currentSpeed * Time.deltaTime);
+            // Karakterin o an baktýðý yöne (Local Forward) göre hareket et
+            Vector3 moveDirection = transform.forward * moveInput;
+            controller.Move(moveDirection * currentSpeed * Time.deltaTime);
         }
 
         // Animasyon ve Kamera FOV Kontrolü
-        anim.SetFloat("Speed", currentSpeed);
+        // Geriye doðru yürürken de (moveInput < 0) animasyonun çalýþmasý için mutlak deðer (Abs) kullanýyoruz
+        anim.SetFloat("Speed", isMoving ? currentSpeed : 0f);
         cameraController.SetFOV(isRunning ? 50f : 65f);
 
-        // Ses ve Stamina
+        // Ses ve Stamina Kontrolleri
         if (isRunning)
         {
             PlaySound(runSound);
@@ -131,7 +139,7 @@ public class PlayerController : MonoBehaviour
             PlaySound(walkSound);
         }
 
-        // Zýplama
+        // Zýplama Kontrolü
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded && currentStamina >= 15f)
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);

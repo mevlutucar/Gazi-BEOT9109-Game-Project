@@ -149,7 +149,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 504708431}
-  - {fileID: 330585546}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &21081122
@@ -1201,7 +1200,7 @@ Transform:
   m_GameObject: {fileID: 326201206}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -137.04114, y: -4.42152, z: -16.21295}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1295,12 +1294,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.14479418, y: 0.009409849, z: -0.0013097129, w: 0.98941624}
-  m_LocalPosition: {x: -0.024564743, y: 3.1374376, z: -4.620864}
+  m_LocalRotation: {x: -0.121509604, y: 0.0022817086, z: -0.00090075954, w: -0.99258727}
+  m_LocalPosition: {x: 0.12481198, y: 3.0431988, z: -4.186038}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 12820205}
+  m_Father: {fileID: 504708431}
   m_LocalEulerAnglesHint: {x: 16.26, y: -1.365, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
@@ -2093,17 +2092,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: df9506ab724b4c94b9572e999f150f40, type: 2}
     - target: {fileID: 9500000, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'Root'\n\tTransform 'IndexFinger_02'\n\tTransform
-        'Elbow_R'\n\tTransform 'Finger_02'\n\tTransform 'Finger_03'\n\tTransform
-        'Ball_L'\n\tTransform 'Thumb_02'\n\tTransform 'Ball_R'\n\tTransform 'Clavicle_L'\n\tTransform
-        'Finger_01'\n\tand more ...\n\tFrom animation clip 'Breathing Idle'\n\tFrom
-        animation clip 'Fast Run'\n\tFrom animation clip 'Jumping'\n\tFrom animation
-        clip 'Walking'\n\tFrom animation clip 'Firing Rifle'\n\tFrom animation clip
-        'Grab Rifle From The Side And Put Back'\n\tFrom animation clip 'Hit Reaction'\n\tFrom
-        animation clip 'Put Back Rifle'\n\tFrom animation clip 'Rifle Aiming Idle'\n\tFrom
-        animation clip 'Rifle Death'\n\tand more ..."
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -2136,6 +2125,9 @@ PrefabInstance:
     - {fileID: 100008, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
     - {fileID: 100048, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 400050, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 330585546}
     - targetCorrespondingSourceObject: {fileID: 400080, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
       insertIndex: 0
       addedObject: {fileID: 2099579131}
@@ -3176,7 +3168,7 @@ MonoBehaviour:
   runSpeed: 3
   jumpForce: 2
   gravity: -9.81
-  turnSmoothSpeed: 10
+  turnSpeed: 60
   walkSound: {fileID: 0}
   runSound: {fileID: 0}
   jumpSound: {fileID: 0}
@@ -3200,13 +3192,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.8
+  m_Height: 2
   m_Radius: 0.3
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 2, z: 0}
+  m_Center: {x: 0, y: 1.05, z: 0}
 --- !u!1 &854546736
 GameObject:
   m_ObjectHideFlags: 0
@@ -5623,7 +5615,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4575452960449438, guid: f877ba9d08fd65b4c9a2195c29d46043, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.49
+      value: -4.77
       objectReference: {fileID: 0}
     - target: {fileID: 4575452960449438, guid: f877ba9d08fd65b4c9a2195c29d46043, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5647,7 +5639,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 64361243919900942, guid: f877ba9d08fd65b4c9a2195c29d46043, type: 3}
       propertyPath: m_Convex
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
