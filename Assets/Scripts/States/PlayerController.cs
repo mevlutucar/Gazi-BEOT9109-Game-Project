@@ -25,18 +25,23 @@ public class PlayerController : MonoBehaviour
     public float currentStamina;
     public int ammoCount = 30;
 
+    [Header("Weapon Settings")]
+    public float fireRate = 0.2f; // Ateþ etme bekleme süresi (Saniye)
+    internal float nextFireTime = 0f; // Bir sonraki ateþ edebilme zamaný
+
     [Header("Movement Settings")]
     public float walkSpeed = 3f;
     public float runSpeed = 6f;
     public float jumpForce = 5f;
     public float gravity = -9.81f;
-
-    // Eski turnSmoothSpeed yerine, saniye baþýna kaç derece döneceðini belirten turnSpeed ekledik.
     public float turnSpeed = 150f;
 
     [Header("Audio Clips")]
     public AudioClip walkSound, runSound, jumpSound, shootSound, emptyMagSound;
-    private AudioSource audioSource;
+    public AudioClip hitSound, deathSound;
+
+    private AudioSource movementAudioSource;
+    private AudioSource actionAudioSource;
 
     internal Vector3 velocity;
     internal bool isGrounded;
@@ -52,7 +57,12 @@ public class PlayerController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
-        audioSource = gameObject.AddComponent<AudioSource>();
+
+        movementAudioSource = gameObject.AddComponent<AudioSource>();
+        movementAudioSource.loop = true;
+
+        actionAudioSource = gameObject.AddComponent<AudioSource>();
+        actionAudioSource.loop = false;
 
         currentHealth = maxHealth;
         currentStamina = maxStamina;
@@ -67,6 +77,11 @@ public class PlayerController : MonoBehaviour
 
         isGrounded = controller.isGrounded;
         anim.SetBool("IsGrounded", isGrounded);
+
+        if (isGrounded && actionAudioSource.isPlaying && actionAudioSource.clip == jumpSound)
+        {
+            actionAudioSource.Stop();
+        }
 
         currentState.UpdateState(this);
         ApplyGravity();
@@ -87,59 +102,101 @@ public class PlayerController : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    public void PlaySound(AudioClip clip)
+    // MERKEZÝ ATEÞ ETME SÝSTEMÝ (BEKLEME SÜRELÝ)
+    public void FireWeapon()
     {
-        if (clip != null && !audioSource.isPlaying)
-            audioSource.PlayOneShot(clip);
+        // Þu anki zaman, bir sonraki ateþ edebilme zamanýna eþit veya büyükse ateþ et
+        if (Time.time >= nextFireTime)
+        {
+            if (ammoCount > 0)
+            {
+                anim.SetTrigger("Fire");
+                PlaySound(shootSound);
+                ammoCount--;
+                uiManager.UpdateUI(this);
+            }
+            else
+            {
+                PlaySound(emptyMagSound);
+            }
+
+            // Mermi olsa da olmasa da tetiðin bekleme süresini (0.2 sn) ekliyoruz.
+            nextFireTime = Time.time + fireRate;
+        }
     }
 
-    // GÜNCELLENMÝÞ HAREKET VE ROTASYON SÝSTEMÝ
+    public void PlaySound(AudioClip clip)
+    {
+        if (clip != null)
+        {
+            actionAudioSource.clip = clip;
+            actionAudioSource.Play();
+        }
+    }
+
+    private void HandleMovementAudio(AudioClip clip)
+    {
+        if (clip != null)
+        {
+            if (movementAudioSource.clip != clip)
+            {
+                movementAudioSource.clip = clip;
+                movementAudioSource.Play();
+            }
+            else if (!movementAudioSource.isPlaying)
+            {
+                movementAudioSource.Play();
+            }
+        }
+    }
+
+    private void StopMovementAudio()
+    {
+        if (movementAudioSource.isPlaying)
+        {
+            movementAudioSource.Stop();
+        }
+    }
+
     public void HandleMovementAndRotation()
     {
-        // Girdileri alýyoruz
-        float turnInput = Input.GetAxisRaw("Horizontal"); // A, D, Sol, Sað
-        float moveInput = Input.GetAxisRaw("Vertical");   // W, S, Yukarý, Aþaðý
+        float turnInput = Input.GetAxisRaw("Horizontal");
+        float moveInput = Input.GetAxisRaw("Vertical");
 
-        // 1. Sadece Kendi Etrafýnda Dönme (Rotasyon) - Yürümeden baðýmsýz
         if (turnInput != 0)
         {
             float rotationAmount = turnInput * turnSpeed * Time.deltaTime;
             transform.Rotate(0f, rotationAmount, 0f);
         }
 
-        // 2. Ýleri ve Geri Yürüme (Hareket)
         bool isMoving = moveInput != 0;
-
-        // Sadece ileri giderken (moveInput > 0) koþmaya izin veriyoruz
         bool isRunning = Input.GetKey(KeyCode.LeftShift) && isMoving && moveInput > 0 && currentStamina > 0;
-
         float currentSpeed = isRunning ? runSpeed : (isMoving ? walkSpeed : 0f);
 
         if (isMoving)
         {
-            // Karakterin o an baktýðý yöne (Local Forward) göre hareket et
             Vector3 moveDirection = transform.forward * moveInput;
             controller.Move(moveDirection * currentSpeed * Time.deltaTime);
         }
 
-        // Animasyon ve Kamera FOV Kontrolü
-        // Geriye doðru yürürken de (moveInput < 0) animasyonun çalýþmasý için mutlak deðer (Abs) kullanýyoruz
         anim.SetFloat("Speed", isMoving ? currentSpeed : 0f);
         cameraController.SetFOV(isRunning ? 50f : 65f);
 
-        // Ses ve Stamina Kontrolleri
         if (isRunning)
         {
-            PlaySound(runSound);
+            HandleMovementAudio(runSound);
             currentStamina -= Time.deltaTime * 10f;
             uiManager.UpdateUI(this);
         }
         else if (isMoving)
         {
-            PlaySound(walkSound);
+            HandleMovementAudio(walkSound);
+        }
+        else
+        {
+            StopMovementAudio();
         }
 
-        // Zýplama Kontrolü
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded && currentStamina >= 15f)
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
@@ -155,10 +212,18 @@ public class PlayerController : MonoBehaviour
         if (currentState == deadState) return;
 
         currentHealth -= damage;
-        anim.SetTrigger("Hit");
         uiManager.UpdateUI(this);
 
-        if (currentHealth <= 0) TransitionToState(deadState);
+        if (currentHealth <= 0)
+        {
+            PlaySound(deathSound);
+            TransitionToState(deadState);
+        }
+        else
+        {
+            anim.SetTrigger("Hit");
+            PlaySound(hitSound);
+        }
     }
 
     private void RecoverStamina()

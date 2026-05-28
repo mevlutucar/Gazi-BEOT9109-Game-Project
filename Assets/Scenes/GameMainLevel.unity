@@ -3163,17 +3163,20 @@ MonoBehaviour:
   currentHealth: 0
   maxStamina: 100
   currentStamina: 0
-  ammoCount: 30
+  ammoCount: 8
+  fireRate: 2
   walkSpeed: 1
   runSpeed: 3
   jumpForce: 2
   gravity: -9.81
   turnSpeed: 60
-  walkSound: {fileID: 0}
-  runSound: {fileID: 0}
-  jumpSound: {fileID: 0}
-  shootSound: {fileID: 0}
-  emptyMagSound: {fileID: 0}
+  walkSound: {fileID: 8300000, guid: a79acf1489d9ff64fbd7dc78426fa9d1, type: 3}
+  runSound: {fileID: 8300000, guid: a088ed3158ae9cd44a46b7b6b8f30c48, type: 3}
+  jumpSound: {fileID: 8300000, guid: 30c847bb22f366f4e8480338037dc611, type: 3}
+  shootSound: {fileID: 8300000, guid: e2b40c1e735cab242b57be7125cfd7b3, type: 3}
+  emptyMagSound: {fileID: 8300000, guid: a8ae05070226a644e8a929799c190457, type: 3}
+  hitSound: {fileID: 8300000, guid: 4d4c46d27784ef94db25c2c5aa237987, type: 3}
+  deathSound: {fileID: 8300000, guid: 9d163263b29df564fa50ba60eb5b1c37, type: 3}
 --- !u!143 &850762980
 CharacterController:
   m_ObjectHideFlags: 0
@@ -6991,7 +6994,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 12
+  m_text: '4
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

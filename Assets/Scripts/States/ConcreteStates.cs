@@ -6,14 +6,12 @@ public class UnarmedState : IPlayerState
     {
         player.anim.SetBool("HasRifle", false);
         player.uiManager.SetWeaponIcon(false);
-
-        // Silahý gizle
         if (player.rifleObject != null) player.rifleObject.SetActive(false);
     }
 
     public void UpdateState(PlayerController player)
     {
-        player.HandleMovementAndRotation(); // Yeni merkez fonksiyon
+        player.HandleMovementAndRotation();
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -31,14 +29,12 @@ public class ArmedState : IPlayerState
     {
         player.anim.SetBool("HasRifle", true);
         player.uiManager.SetWeaponIcon(true);
-
-        // Silahý aktif et
         if (player.rifleObject != null) player.rifleObject.SetActive(true);
     }
 
     public void UpdateState(PlayerController player)
     {
-        player.HandleMovementAndRotation(); // Yeni merkez fonksiyon
+        player.HandleMovementAndRotation();
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -46,33 +42,19 @@ public class ArmedState : IPlayerState
             player.TransitionToState(player.unarmedState);
         }
 
-        if (Input.GetMouseButton(1)) // Sað Týk
+        if (Input.GetMouseButton(1))
         {
             player.TransitionToState(player.aimingState);
         }
 
-        if (Input.GetMouseButtonDown(0))
+        // GetMouseButton kullandýðýmýz için basýlý tuttukça fireRate aralýðýyla ateþ eder
+        if (Input.GetMouseButton(0))
         {
-            FireWeapon(player);
+            player.FireWeapon();
         }
     }
 
     public void ExitState(PlayerController player) { }
-
-    private void FireWeapon(PlayerController player)
-    {
-        if (player.ammoCount > 0)
-        {
-            player.anim.SetTrigger("Fire");
-            player.PlaySound(player.shootSound);
-            player.ammoCount--;
-            player.uiManager.UpdateUI(player);
-        }
-        else
-        {
-            player.PlaySound(player.emptyMagSound);
-        }
-    }
 }
 
 public class AimingState : IPlayerState
@@ -86,16 +68,17 @@ public class AimingState : IPlayerState
 
     public void UpdateState(PlayerController player)
     {
-        player.HandleMovementAndRotation(); // Niþan alýrken de hareket edebilsin
+        player.HandleMovementAndRotation();
 
         if (Input.GetMouseButtonUp(1))
         {
             player.TransitionToState(player.armedState);
         }
 
-        if (Input.GetMouseButtonDown(0))
+        // Niþan alýrken de ateþ hýzý kuralý geçerli
+        if (Input.GetMouseButton(0))
         {
-            FireWeaponAiming(player);
+            player.FireWeapon();
         }
     }
 
@@ -104,21 +87,6 @@ public class AimingState : IPlayerState
         player.anim.SetBool("IsAiming", false);
         player.cameraController.SetFOV(65f);
         player.uiManager.ToggleCrosshair(false);
-    }
-
-    private void FireWeaponAiming(PlayerController player)
-    {
-        if (player.ammoCount > 0)
-        {
-            player.anim.SetTrigger("Fire");
-            player.PlaySound(player.shootSound);
-            player.ammoCount--;
-            player.uiManager.UpdateUI(player);
-        }
-        else
-        {
-            player.PlaySound(player.emptyMagSound);
-        }
     }
 }
 
