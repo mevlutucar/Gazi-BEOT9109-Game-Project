@@ -380,7 +380,7 @@ GameObject:
   - component: {fileID: 897737500}
   - component: {fileID: 897737499}
   m_Layer: 5
-  m_Name: Credits_Canvas
+  m_Name: Options_Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -619,7 +619,7 @@ GameObject:
   - component: {fileID: 1370996730}
   - component: {fileID: 1370996729}
   m_Layer: 5
-  m_Name: Credits_Txt
+  m_Name: Options_Txt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -664,17 +664,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'CREDITS
-
-    Game designed by Mevlut Ucar
-
-    Game Developed by Mevlut
-    Ucar & Google Gemini Pro
-
-    Assets by Synty Studio - Polygon Western Frontier
-    Pack
-
-    Icons by Icons8'
+  m_text: OPTIONS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
