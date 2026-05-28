@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1dfd1689b46e447479053c31b195707a
+guid: 96d5c41c38c7a614a9229ffb79afde92
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Lasso_Sprite_2D
+      name: rifle_2d
       rect:
         serializedVersion: 2
-        x: 50
+        x: 0
         y: 0
-        width: 412
-        height: 512
+        width: 100
+        height: 100
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,8 +125,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b25f8bf0ff64ba24896e9dbda248a6b8
-      internalID: -1859885630
+      spriteID: e2ec84c80e69f064cb1552819ed970f5
+      internalID: 222633075
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 579b6ed985c06c24f8bcc9206862b8fa
+    spriteID: 805d287537616524486b422b887fccde
     internalID: 0
     vertices: []
     indices: 
@@ -145,9 +145,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":100.0,"y":100.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Lasso_Sprite_2D: -1859885630
+      rifle_2d: 222633075
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

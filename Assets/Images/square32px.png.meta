@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d6813ecc77c689f4da8b5e79367db81b
+guid: 9ce4a47250ed96c46a15acd634121c4f
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: crossed_Sprite_2D
+      name: square32px_2d
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,8 +125,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 76b109155be7cc94baebb157576cd74c
-      internalID: -1541956212
+      spriteID: 85342224e7493e742bef41db3850f652
+      internalID: -1404649137
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2f49eeb4aba67bb42bc05cb4ca55104a
+    spriteID: 33f501ed531d70547b6bb286ad174e70
     internalID: 0
     vertices: []
     indices: 
@@ -147,7 +147,7 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      crossed_Sprite_2D: -1541956212
+      square32px_2d: -1404649137
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
