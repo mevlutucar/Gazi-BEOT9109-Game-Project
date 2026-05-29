@@ -23,6 +23,19 @@ public class PlayerController : MonoBehaviour
     public GameObject punchIconUI;
     public GameObject rifleIconUI;
 
+    [Header("Bone Alignment (LateUpdate)")]
+    public Transform rootBone;
+
+    // Geçiþ hýzýný Inspector'dan dilediðin gibi ayarlayabilirsin (Varsayýlan: 20f çok seri ve tok bir geçiþtir)
+    [Range(1f, 50f)] public float boneTransitionSpeed = 20f;
+
+    private Vector3 defaultRiflePos;
+    private Quaternion defaultRifleRot;
+
+    // Geçiþlerin süzülmesini engelleyen IK Aðýrlýk deðiþkenleri
+    private float rifleIKWeight = 0f;
+    private float rootIKWeight = 0f;
+
     [Header("Player Stats")]
     public float maxHealth = 100f;
     public float currentHealth;
@@ -84,6 +97,12 @@ public class PlayerController : MonoBehaviour
         currentHealth = maxHealth;
         currentStamina = maxStamina;
 
+        if (rifleModel != null)
+        {
+            defaultRiflePos = rifleModel.transform.localPosition;
+            defaultRifleRot = rifleModel.transform.localRotation;
+        }
+
         TransitionToState(unarmedState);
         uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
     }
@@ -103,6 +122,46 @@ public class PlayerController : MonoBehaviour
         currentState.UpdateState(this);
         ApplyGravity();
         RecoverStamina();
+    }
+
+    // --- PROFESYONEL IK (WEIGHT) GÜNCELLEMESÝ ---
+    void LateUpdate()
+    {
+        if (GameManager.Instance.isPaused || currentState == deadState || rifleModel == null || rootBone == null) return;
+
+        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(1);
+
+        bool applyRifleOffset = stateInfo.IsName("Rifle Run") ||
+                                stateInfo.IsName("Firing Rifle") ||
+                                stateInfo.IsName("Rifle Aiming Idle");
+
+        bool applyRootRotation = stateInfo.IsName("Firing Rifle") ||
+                                 stateInfo.IsName("Rifle Aiming Idle");
+
+        // 1. Hedef aðýrlýklarý belirliyoruz (1 = Pozisyonumuzu al, 0 = Varsayýlaný al)
+        float targetRifleWeight = applyRifleOffset ? 1f : 0f;
+        float targetRootWeight = applyRootRotation ? 1f : 0f;
+
+        // 2. Aðýrlýklarý Inspector'dan belirlediðimiz hýzla linear olarak dolduruyoruz
+        rifleIKWeight = Mathf.MoveTowards(rifleIKWeight, targetRifleWeight, boneTransitionSpeed * Time.deltaTime);
+        rootIKWeight = Mathf.MoveTowards(rootIKWeight, targetRootWeight, boneTransitionSpeed * Time.deltaTime);
+
+        // 3. SÝLAH GEÇÝÞÝ: Animasyonla tam uyumlu çalýþýr, süzülme yapmaz
+        Vector3 customRiflePos = new Vector3(-7f, -4.1f, 5.9f);
+        Quaternion customRifleRot = Quaternion.Euler(-13.81f, -121.439f, -29.97f);
+
+        rifleModel.transform.localPosition = Vector3.Lerp(defaultRiflePos, customRiflePos, rifleIKWeight);
+        rifleModel.transform.localRotation = Quaternion.Slerp(defaultRifleRot, customRifleRot, rifleIKWeight);
+
+        // 4. ROOT GEÇÝÞÝ: Anýnda dönmek yerine Animator'ün doðal dönüþüne (ham haline) harmanlýyoruz
+        if (rootIKWeight > 0.01f) // Ufak optimizasyon (0 ise hesaplama yapmaz)
+        {
+            Quaternion customRootRot = Quaternion.Euler(0f, 45f, 0f);
+
+            // rootBone.localRotation o an Animator'ün verdiði saf/doðal animasyon açýsýdýr.
+            // Biz bu açýyý kendi aðýrlýðýmýzla (rootIKWeight) kendi hedefimize doðru büküyoruz.
+            rootBone.localRotation = Quaternion.Slerp(rootBone.localRotation, customRootRot, rootIKWeight);
+        }
     }
 
     public void TransitionToState(IPlayerState newState)
@@ -168,7 +227,6 @@ public class PlayerController : MonoBehaviour
                 movementAudioSource.Play();
             }
 
-            // --- CANLI GÜNCELLEME: Slider'ý oynattýðýnda anýnda etki etmesi için volume her karede eþitlenir ---
             movementAudioSource.volume = volume;
         }
     }

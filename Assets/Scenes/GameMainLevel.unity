@@ -1431,13 +1431,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1551752, y: 0.0017416734, z: -0.00054258696, w: 0.9878853}
+  m_LocalRotation: {x: 0.14780942, y: 0, z: 0, w: 0.9890159}
   m_LocalPosition: {x: -0.1, y: 3.8, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 504708431}
-  m_LocalEulerAnglesHint: {x: 17.854, y: 0.197, z: -0.032}
+  m_LocalEulerAnglesHint: {x: 17, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1495,8 +1495,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   playerCamera: {fileID: 330585545}
-  normalRotX: 17.854
-  aimRotX: 17.854
+  normalRotX: 17
+  aimRotX: 17
 --- !u!1001 &342204117
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2481,6 +2481,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.97088844
+      objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.011330196
+      objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.23686388
+      objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.033804763
+      objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0.343
+      objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 27.433
+      objectReference: {fileID: 0}
+    - target: {fileID: 400114, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 4.072
+      objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -2546,6 +2574,11 @@ Transform:
 --- !u!4 &504708432 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400080, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
+  m_PrefabInstance: {fileID: 504708430}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &504708433 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 400110, guid: 72b83be23d80d604bbe50cdfeebcf552, type: 3}
   m_PrefabInstance: {fileID: 504708430}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &507415147
@@ -4408,6 +4441,8 @@ MonoBehaviour:
   rifleModel: {fileID: 1033690444}
   punchIconUI: {fileID: 2147106334}
   rifleIconUI: {fileID: 412178981}
+  rootBone: {fileID: 504708433}
+  boneTransitionSpeed: 10
   maxHealth: 100
   currentHealth: 0
   maxStamina: 100
@@ -6552,7 +6587,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   uiManager: {fileID: 995242910}
   directionalLight: {fileID: 410087040}
-  realMinutesPerGameDay: 0.5
+  realMinutesPerGameDay: 10
   daysSurvived: 0
   levelAudioSource: {fileID: 1325434101}
   lightTempoMusic: {fileID: 8300000, guid: 391c50b0d8ec57b4e942d3e24d0dbccd, type: 3}
