@@ -41,10 +41,21 @@ public class PlayerController : MonoBehaviour
     public float gravity = -9.81f;
     public float turnSpeed = 150f;
 
-    [Header("Audio & Death Settings")]
+    [Header("Audio Clips")]
     public AudioClip walkSound, runSound, jumpSound, shootSound, emptyMagSound;
     public AudioClip hitSound, deathSound;
-    public float deathDelay = 2.5f; // Inspector'dan bekleme süresini ayarlayabilirsin
+
+    [Header("Audio Volumes")]
+    [Range(0f, 1f)] public float walkVolume = 1f;
+    [Range(0f, 1f)] public float runVolume = 1f;
+    [Range(0f, 1f)] public float jumpVolume = 1f;
+    [Range(0f, 1f)] public float shootVolume = 1f;
+    [Range(0f, 1f)] public float emptyMagVolume = 1f;
+    [Range(0f, 1f)] public float hitVolume = 1f;
+    [Range(0f, 1f)] public float deathVolume = 1f;
+
+    [Header("Death Settings")]
+    public float deathDelay = 2.5f;
 
     private AudioSource movementAudioSource;
     private AudioSource actionAudioSource;
@@ -79,7 +90,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Karakter öldüyse veya oyun durduysa Update'i okuma
         if (GameManager.Instance.isPaused || currentState == deadState) return;
 
         isGrounded = controller.isGrounded;
@@ -118,7 +128,7 @@ public class PlayerController : MonoBehaviour
             if (ammoCount > 0 && currentStamina >= 10f)
             {
                 anim.SetTrigger("Fire");
-                PlaySound(shootSound);
+                PlaySound(shootSound, shootVolume);
                 ammoCount--;
                 currentStamina -= 10f;
 
@@ -127,23 +137,24 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                PlaySound(emptyMagSound);
+                PlaySound(emptyMagSound, emptyMagVolume);
             }
 
             nextFireTime = Time.time + fireRate;
         }
     }
 
-    public void PlaySound(AudioClip clip)
+    public void PlaySound(AudioClip clip, float volume)
     {
         if (clip != null)
         {
             actionAudioSource.clip = clip;
+            actionAudioSource.volume = volume;
             actionAudioSource.Play();
         }
     }
 
-    private void HandleMovementAudio(AudioClip clip)
+    private void HandleMovementAudio(AudioClip clip, float volume)
     {
         if (clip != null)
         {
@@ -156,6 +167,9 @@ public class PlayerController : MonoBehaviour
             {
                 movementAudioSource.Play();
             }
+
+            // --- CANLI GÜNCELLEME: Slider'ý oynattýðýnda anýnda etki etmesi için volume her karede eþitlenir ---
+            movementAudioSource.volume = volume;
         }
     }
 
@@ -190,7 +204,6 @@ public class PlayerController : MonoBehaviour
 
         anim.SetFloat("Speed", isMoving ? currentSpeed : 0f);
 
-        // Aiming (Niþan) durumunda deðilsek normal kamera uzaklýk ve açýlarýný koru
         if (currentState != aimingState)
         {
             cameraController.SetAimTarget(false, isRunning ? 50f : 65f);
@@ -198,13 +211,13 @@ public class PlayerController : MonoBehaviour
 
         if (isRunning)
         {
-            HandleMovementAudio(runSound);
+            HandleMovementAudio(runSound, runVolume);
             currentStamina -= Time.deltaTime * 10f;
             uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
         }
         else if (isMoving)
         {
-            HandleMovementAudio(walkSound);
+            HandleMovementAudio(walkSound, walkVolume);
         }
         else
         {
@@ -215,7 +228,7 @@ public class PlayerController : MonoBehaviour
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
             anim.SetTrigger("Jump");
-            PlaySound(jumpSound);
+            PlaySound(jumpSound, jumpVolume);
             currentStamina -= 15f;
             uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
         }
@@ -248,11 +261,10 @@ public class PlayerController : MonoBehaviour
         else
         {
             anim.SetTrigger("Hit");
-            PlaySound(hitSound);
+            PlaySound(hitSound, hitVolume);
         }
     }
 
-    // ÖLÜM SEKANSI GECÝKMESÝ
     public void TriggerDeathSequence()
     {
         StartCoroutine(DeathRoutine());
@@ -262,15 +274,12 @@ public class PlayerController : MonoBehaviour
     {
         StopMovementAudio();
         anim.SetTrigger("Die");
-        PlaySound(deathSound);
+        PlaySound(deathSound, deathVolume);
 
-        // Karakterin çarpýþma ve hareketlerini kapat
         controller.enabled = false;
 
-        // Ayarladýðýn saniye kadar bekle (Örn: 2.5 sn)
         yield return new WaitForSeconds(deathDelay);
 
-        // Sonra UI'ý aç ve oyunu durdur
         Time.timeScale = 0f;
         uiManager.ShowDeathPanel();
     }

@@ -12,11 +12,17 @@ public class GameManager : MonoBehaviour
     internal float currentTimeInMinutes = 360f; // 06:00 (360. dakika)
     public int daysSurvived = 1; // Oyun 1. Günden baþlar
 
-    [Header("Audio System")]
+    [Header("Audio System & Volumes")]
     public AudioSource levelAudioSource;
+
     public AudioClip lightTempoMusic;
+    [Range(0f, 1f)] public float lightTempoVolume = 0.5f;
+
     public AudioClip actionTempoMusic;
+    [Range(0f, 1f)] public float actionTempoVolume = 1f;
+
     public AudioClip nightAmbianceMusic;
+    [Range(0f, 1f)] public float nightAmbianceVolume = 1f;
 
     internal bool isPaused = false;
     private bool hasTriggeredConversation = false;
@@ -45,13 +51,16 @@ public class GameManager : MonoBehaviour
         {
             TogglePause();
         }
+
+        // --- CANLI SES KONTROLÜ (Slider'larýn çalýþmasýný saðlar) ---
+        UpdateMusicVolumeLive();
     }
 
     private void UpdateDayNightCycle()
     {
         currentTimeInMinutes += gameMinutesPerRealSecond * Time.deltaTime;
 
-        if (currentTimeInMinutes >= 1800f) // 24:00 (1440) + 06:00 (360)
+        if (currentTimeInMinutes >= 1800f)
         {
             currentTimeInMinutes -= 1440f;
             daysSurvived++;
@@ -64,7 +73,6 @@ public class GameManager : MonoBehaviour
 
         uiManager.UpdateDayTimeText(daysSurvived, hours, minutes);
 
-        // Gündüz-Gece Barý (Fill Amount) Hesaplamasý (06:00 ile 06:00 arasý 0'dan 1'e dolar)
         float fillRatio = (currentTimeInMinutes - 360f) / 1440f;
         uiManager.UpdateDayNightBar(fillRatio);
 
@@ -103,11 +111,25 @@ public class GameManager : MonoBehaviour
 
     private void PlayMusic(AudioClip clip)
     {
+        // Burada sadece müziði baþlatýyoruz, sesi "UpdateMusicVolumeLive" yönetecek
         if (clip != null && levelAudioSource.clip != clip)
         {
             levelAudioSource.clip = clip;
             levelAudioSource.Play();
         }
+    }
+
+    // Inspector'daki Slider deðerlerini anlýk olarak AudioSource'a aktaran sistem
+    private void UpdateMusicVolumeLive()
+    {
+        if (levelAudioSource == null || levelAudioSource.clip == null) return;
+
+        if (levelAudioSource.clip == lightTempoMusic)
+            levelAudioSource.volume = lightTempoVolume;
+        else if (levelAudioSource.clip == actionTempoMusic)
+            levelAudioSource.volume = actionTempoVolume;
+        else if (levelAudioSource.clip == nightAmbianceMusic)
+            levelAudioSource.volume = nightAmbianceVolume;
     }
 
     private void TriggerConversation()
