@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public interface IPlayerState
 {
@@ -40,9 +41,10 @@ public class PlayerController : MonoBehaviour
     public float gravity = -9.81f;
     public float turnSpeed = 150f;
 
-    [Header("Audio Clips")]
+    [Header("Audio & Death Settings")]
     public AudioClip walkSound, runSound, jumpSound, shootSound, emptyMagSound;
     public AudioClip hitSound, deathSound;
+    public float deathDelay = 2.5f; // Inspector'dan bekleme süresini ayarlayabilirsin
 
     private AudioSource movementAudioSource;
     private AudioSource actionAudioSource;
@@ -77,7 +79,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance.isPaused) return;
+        // Karakter öldüyse veya oyun durduysa Update'i okuma
+        if (GameManager.Instance.isPaused || currentState == deadState) return;
 
         isGrounded = controller.isGrounded;
         anim.SetBool("IsGrounded", isGrounded);
@@ -187,12 +190,10 @@ public class PlayerController : MonoBehaviour
 
         anim.SetFloat("Speed", isMoving ? currentSpeed : 0f);
 
-        // NÝÞAN ALMA (FOV) ÇAKIÞMASI BURADA ÇÖZÜLDÜ
-        // Eðer AimingState içinde deðilsek normal FOV deðerlerini (50 veya 65) uygula.
-        // Niþan alýyorsak (AimingState), ConcreteStates içindeki "25f" deðeri ezilmez.
+        // Aiming (Niþan) durumunda deðilsek normal kamera uzaklýk ve açýlarýný koru
         if (currentState != aimingState)
         {
-            cameraController.SetFOV(isRunning ? 50f : 65f);
+            cameraController.SetAimTarget(false, isRunning ? 50f : 65f);
         }
 
         if (isRunning)
@@ -220,7 +221,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Karakter Controller için Trigger kullanmalýyýz. Çarpýlacak objelerde (Mermi, Balta) "Is Trigger" tiki açýk olmalý.
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Bullet"))
@@ -243,8 +243,6 @@ public class PlayerController : MonoBehaviour
 
         if (currentHealth <= 0f)
         {
-            PlaySound(deathSound);
-            Time.timeScale = 0f;
             TransitionToState(deadState);
         }
         else
@@ -252,6 +250,29 @@ public class PlayerController : MonoBehaviour
             anim.SetTrigger("Hit");
             PlaySound(hitSound);
         }
+    }
+
+    // ÖLÜM SEKANSI GECÝKMESÝ
+    public void TriggerDeathSequence()
+    {
+        StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        StopMovementAudio();
+        anim.SetTrigger("Die");
+        PlaySound(deathSound);
+
+        // Karakterin çarpýþma ve hareketlerini kapat
+        controller.enabled = false;
+
+        // Ayarladýðýn saniye kadar bekle (Örn: 2.5 sn)
+        yield return new WaitForSeconds(deathDelay);
+
+        // Sonra UI'ý aç ve oyunu durdur
+        Time.timeScale = 0f;
+        uiManager.ShowDeathPanel();
     }
 
     private void RecoverStamina()

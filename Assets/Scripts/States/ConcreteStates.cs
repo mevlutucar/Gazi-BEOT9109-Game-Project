@@ -6,7 +6,6 @@ public class UnarmedState : IPlayerState
     {
         player.anim.SetBool("HasRifle", false);
 
-        // Hem UI ikonlarýný hem de eldeki 3D modeli yönetiyoruz
         player.punchIconUI.SetActive(true);
         player.rifleIconUI.SetActive(false);
         if (player.rifleModel != null) player.rifleModel.SetActive(false);
@@ -34,7 +33,6 @@ public class ArmedState : IPlayerState
     {
         player.anim.SetBool("HasRifle", true);
 
-        // Hem UI ikonlarýný hem de eldeki 3D modeli yönetiyoruz
         player.punchIconUI.SetActive(false);
         player.rifleIconUI.SetActive(true);
         if (player.rifleModel != null) player.rifleModel.SetActive(true);
@@ -71,7 +69,9 @@ public class AimingState : IPlayerState
     public void EnterState(PlayerController player)
     {
         player.anim.SetBool("IsAiming", true);
-        player.cameraController.SetFOV(25f); // 40f'den 25f'e düþürdük, çok net bir yakýnlaþtýrma saðlayacak
+
+        // Kamera hedefini Niþan modu yap (Aim = true, FOV = 25f)
+        player.cameraController.SetAimTarget(true, 25f);
         player.uiManager.SetAimingState(true);
     }
 
@@ -93,7 +93,9 @@ public class AimingState : IPlayerState
     public void ExitState(PlayerController player)
     {
         player.anim.SetBool("IsAiming", false);
-        player.cameraController.SetFOV(65f);
+
+        // Kamera hedefini Normale döndür (Aim = false, FOV = 65f)
+        player.cameraController.SetAimTarget(false, 65f);
         player.uiManager.SetAimingState(false);
     }
 }
@@ -102,8 +104,8 @@ public class DeadState : IPlayerState
 {
     public void EnterState(PlayerController player)
     {
-        player.anim.SetTrigger("Die");
-        player.uiManager.ShowDeathPanel();
+        // Ölüm sekansýný baþlatýr (Beklemeli Coroutine)
+        player.TriggerDeathSequence();
     }
 
     public void UpdateState(PlayerController player) { }
