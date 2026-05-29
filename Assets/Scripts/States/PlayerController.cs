@@ -16,11 +16,11 @@ public class PlayerController : MonoBehaviour
     public UIManager uiManager;
 
     [Header("Weapon Models (3D)")]
-    public GameObject rifleModel; // Inspector'dan SM_Wep_Rifle_01 objesini buraya ata
+    public GameObject rifleModel;
 
     [Header("Weapon UI Icons")]
-    public GameObject punchIconUI; // UI Canvas'taki Punch objesi
-    public GameObject rifleIconUI; // UI Canvas'taki Rifle objesi
+    public GameObject punchIconUI;
+    public GameObject rifleIconUI;
 
     [Header("Player Stats")]
     public float maxHealth = 100f;
@@ -112,20 +112,19 @@ public class PlayerController : MonoBehaviour
 
         if (Time.time >= nextFireTime)
         {
-            // Ateþ etmek için hem mermi hem de en az 10 Stamina gereklidir.
             if (ammoCount > 0 && currentStamina >= 10f)
             {
                 anim.SetTrigger("Fire");
                 PlaySound(shootSound);
                 ammoCount--;
-                currentStamina -= 10f; // Ateþ edildiðinde stamina azalýr
+                currentStamina -= 10f;
 
                 uiManager.UpdateAmmoText(ammoCount);
                 uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
             }
             else
             {
-                PlaySound(emptyMagSound); // Mermi bittiðinde veya stamina yetmediðinde boþ tetik sesi
+                PlaySound(emptyMagSound);
             }
 
             nextFireTime = Time.time + fireRate;
@@ -187,7 +186,14 @@ public class PlayerController : MonoBehaviour
         }
 
         anim.SetFloat("Speed", isMoving ? currentSpeed : 0f);
-        cameraController.SetFOV(isRunning ? 50f : 65f);
+
+        // NÝÞAN ALMA (FOV) ÇAKIÞMASI BURADA ÇÖZÜLDÜ
+        // Eðer AimingState içinde deðilsek normal FOV deðerlerini (50 veya 65) uygula.
+        // Niþan alýyorsak (AimingState), ConcreteStates içindeki "25f" deðeri ezilmez.
+        if (currentState != aimingState)
+        {
+            cameraController.SetFOV(isRunning ? 50f : 65f);
+        }
 
         if (isRunning)
         {
@@ -214,13 +220,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    // Karakter Controller için Trigger kullanmalýyýz. Çarpýlacak objelerde (Mermi, Balta) "Is Trigger" tiki açýk olmalý.
+    void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.CompareTag("Bullet"))
+        if (other.CompareTag("Bullet"))
         {
             TakeDamage(10f);
         }
-        else if (collision.gameObject.CompareTag("Axe"))
+        else if (other.CompareTag("Axe"))
         {
             TakeDamage(20f);
         }
@@ -231,7 +238,6 @@ public class PlayerController : MonoBehaviour
         if (currentState == deadState) return;
 
         currentHealth -= damage;
-        // Can 0'ýn altýna düþmesin diye sýnýrlandýrýyoruz
         currentHealth = Mathf.Max(currentHealth, 0f);
         uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
 

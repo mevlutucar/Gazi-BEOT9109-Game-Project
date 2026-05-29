@@ -4872,8 +4872,8 @@ MonoBehaviour:
   pauseMenuCanvas: {fileID: 615030228}
   deathMenuCanvas: {fileID: 870565554}
   conversationCanvas: {fileID: 2029139409}
-  healthBarImage: {fileID: 787737089}
-  staminaBarImage: {fileID: 1816304327}
+  healthBarImage: {fileID: 1293996973}
+  staminaBarImage: {fileID: 1602776228}
   dayNightFillImage: {fileID: 855965722}
   rifleBulletTxt: {fileID: 106973027}
   dayAndTimeTxt: {fileID: 546181310}
@@ -6542,7 +6542,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   uiManager: {fileID: 995242910}
   directionalLight: {fileID: 410087040}
-  realMinutesPerGameDay: 0.5
+  realMinutesPerGameDay: 5
   daysSurvived: 0
   levelAudioSource: {fileID: 1325434101}
   lightTempoMusic: {fileID: 8300000, guid: 391c50b0d8ec57b4e942d3e24d0dbccd, type: 3}
@@ -11661,7 +11661,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
