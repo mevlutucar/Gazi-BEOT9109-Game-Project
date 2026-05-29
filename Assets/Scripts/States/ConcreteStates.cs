@@ -5,8 +5,13 @@ public class UnarmedState : IPlayerState
     public void EnterState(PlayerController player)
     {
         player.anim.SetBool("HasRifle", false);
-        player.uiManager.SetWeaponIcon(false);
-        if (player.rifleObject != null) player.rifleObject.SetActive(false);
+
+        // Hem UI ikonlarýný hem de eldeki 3D modeli yönetiyoruz
+        player.punchIconUI.SetActive(true);
+        player.rifleIconUI.SetActive(false);
+        if (player.rifleModel != null) player.rifleModel.SetActive(false);
+
+        player.uiManager.ToggleCrosshairVisibility(false);
     }
 
     public void UpdateState(PlayerController player)
@@ -28,8 +33,13 @@ public class ArmedState : IPlayerState
     public void EnterState(PlayerController player)
     {
         player.anim.SetBool("HasRifle", true);
-        player.uiManager.SetWeaponIcon(true);
-        if (player.rifleObject != null) player.rifleObject.SetActive(true);
+
+        // Hem UI ikonlarýný hem de eldeki 3D modeli yönetiyoruz
+        player.punchIconUI.SetActive(false);
+        player.rifleIconUI.SetActive(true);
+        if (player.rifleModel != null) player.rifleModel.SetActive(true);
+
+        player.uiManager.ToggleCrosshairVisibility(true);
     }
 
     public void UpdateState(PlayerController player)
@@ -47,7 +57,6 @@ public class ArmedState : IPlayerState
             player.TransitionToState(player.aimingState);
         }
 
-        // GetMouseButton kullandýðýmýz için basýlý tuttukça fireRate aralýðýyla ateþ eder
         if (Input.GetMouseButton(0))
         {
             player.FireWeapon();
@@ -62,8 +71,8 @@ public class AimingState : IPlayerState
     public void EnterState(PlayerController player)
     {
         player.anim.SetBool("IsAiming", true);
-        player.cameraController.SetFOV(40f);
-        player.uiManager.ToggleCrosshair(true);
+        player.cameraController.SetFOV(25f); // 40f'den 25f'e düþürdük, çok net bir yakýnlaþtýrma saðlayacak
+        player.uiManager.SetAimingState(true);
     }
 
     public void UpdateState(PlayerController player)
@@ -75,7 +84,6 @@ public class AimingState : IPlayerState
             player.TransitionToState(player.armedState);
         }
 
-        // Niþan alýrken de ateþ hýzý kuralý geçerli
         if (Input.GetMouseButton(0))
         {
             player.FireWeapon();
@@ -86,7 +94,7 @@ public class AimingState : IPlayerState
     {
         player.anim.SetBool("IsAiming", false);
         player.cameraController.SetFOV(65f);
-        player.uiManager.ToggleCrosshair(false);
+        player.uiManager.SetAimingState(false);
     }
 }
 

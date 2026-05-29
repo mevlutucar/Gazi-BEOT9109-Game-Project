@@ -15,8 +15,12 @@ public class PlayerController : MonoBehaviour
     public CameraController cameraController;
     public UIManager uiManager;
 
-    [Header("Weapon References")]
-    public GameObject rifleObject; // Inspector'dan SM_Wep_Rifle_01 buraya atanacak
+    [Header("Weapon Models (3D)")]
+    public GameObject rifleModel; // Inspector'dan SM_Wep_Rifle_01 objesini buraya ata
+
+    [Header("Weapon UI Icons")]
+    public GameObject punchIconUI; // UI Canvas'taki Punch objesi
+    public GameObject rifleIconUI; // UI Canvas'taki Rifle objesi
 
     [Header("Player Stats")]
     public float maxHealth = 100f;
@@ -26,8 +30,8 @@ public class PlayerController : MonoBehaviour
     public int ammoCount = 30;
 
     [Header("Weapon Settings")]
-    public float fireRate = 0.2f; // Ateþ etme bekleme süresi (Saniye)
-    internal float nextFireTime = 0f; // Bir sonraki ateþ edebilme zamaný
+    public float fireRate = 0.2f;
+    internal float nextFireTime = 0f;
 
     [Header("Movement Settings")]
     public float walkSpeed = 3f;
@@ -68,7 +72,7 @@ public class PlayerController : MonoBehaviour
         currentStamina = maxStamina;
 
         TransitionToState(unarmedState);
-        uiManager.UpdateUI(this);
+        uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
     }
 
     void Update()
@@ -102,25 +106,28 @@ public class PlayerController : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    // MERKEZÝ ATEÞ ETME SÝSTEMÝ (BEKLEME SÜRELÝ)
     public void FireWeapon()
     {
-        // Þu anki zaman, bir sonraki ateþ edebilme zamanýna eþit veya büyükse ateþ et
+        int.TryParse(uiManager.rifleBulletTxt.text, out ammoCount);
+
         if (Time.time >= nextFireTime)
         {
-            if (ammoCount > 0)
+            // Ateþ etmek için hem mermi hem de en az 10 Stamina gereklidir.
+            if (ammoCount > 0 && currentStamina >= 10f)
             {
                 anim.SetTrigger("Fire");
                 PlaySound(shootSound);
                 ammoCount--;
-                uiManager.UpdateUI(this);
+                currentStamina -= 10f; // Ateþ edildiðinde stamina azalýr
+
+                uiManager.UpdateAmmoText(ammoCount);
+                uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
             }
             else
             {
-                PlaySound(emptyMagSound);
+                PlaySound(emptyMagSound); // Mermi bittiðinde veya stamina yetmediðinde boþ tetik sesi
             }
 
-            // Mermi olsa da olmasa da tetiðin bekleme süresini (0.2 sn) ekliyoruz.
             nextFireTime = Time.time + fireRate;
         }
     }
@@ -186,7 +193,7 @@ public class PlayerController : MonoBehaviour
         {
             HandleMovementAudio(runSound);
             currentStamina -= Time.deltaTime * 10f;
-            uiManager.UpdateUI(this);
+            uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
         }
         else if (isMoving)
         {
@@ -203,7 +210,19 @@ public class PlayerController : MonoBehaviour
             anim.SetTrigger("Jump");
             PlaySound(jumpSound);
             currentStamina -= 15f;
-            uiManager.UpdateUI(this);
+            uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Bullet"))
+        {
+            TakeDamage(10f);
+        }
+        else if (collision.gameObject.CompareTag("Axe"))
+        {
+            TakeDamage(20f);
         }
     }
 
@@ -212,11 +231,14 @@ public class PlayerController : MonoBehaviour
         if (currentState == deadState) return;
 
         currentHealth -= damage;
-        uiManager.UpdateUI(this);
+        // Can 0'ýn altýna düþmesin diye sýnýrlandýrýyoruz
+        currentHealth = Mathf.Max(currentHealth, 0f);
+        uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0f)
         {
             PlaySound(deathSound);
+            Time.timeScale = 0f;
             TransitionToState(deadState);
         }
         else
@@ -231,7 +253,7 @@ public class PlayerController : MonoBehaviour
         if (currentStamina < maxStamina && currentState != deadState && !Input.GetKey(KeyCode.LeftShift))
         {
             currentStamina += Time.deltaTime * 5f;
-            uiManager.UpdateUI(this);
+            uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
         }
     }
 }
