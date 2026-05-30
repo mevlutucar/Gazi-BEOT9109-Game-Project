@@ -264,7 +264,7 @@ public class PlayerController : MonoBehaviour
 
         if (currentState != aimingState)
         {
-            cameraController.SetAimTarget(false, isRunning ? 50f : 65f);
+            cameraController.SetAimTarget(false, isRunning ? 65f : 75f);
         }
 
         if (isRunning)
