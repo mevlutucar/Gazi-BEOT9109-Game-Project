@@ -676,15 +676,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'CREDITS
+  m_text: 'KATKIDA BULUNANLAR
+
 
     Game designed by Mevlut Ucar
 
-    Game Developed by Mevlut
-    Ucar & Google Gemini Pro
+    Game Developed
+    by Mevlut Ucar & Google Gemini Pro
 
-    Assets by Synty Studio - Polygon Western Frontier
-    Pack
+    Assets by Synty Studio - Polygon Western
+    Frontier Pack
 
     Icons by Icons8'
   m_isRightToLeft: 0
