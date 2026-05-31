@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 public class MenuMusicManager : MonoBehaviour
 {
     private static MenuMusicManager instance;
+    private AudioSource audioSource;
 
     void Awake()
     {
@@ -11,10 +12,20 @@ public class MenuMusicManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            audioSource = GetComponent<AudioSource>();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    void Update()
+    {
+        if (audioSource != null)
+        {
+            // Slider'ýn kaydettiði deðeri sürekli okuyup sese uygular
+            audioSource.volume = PlayerPrefs.GetFloat("MenuMusicVol", 1f);
         }
     }
 

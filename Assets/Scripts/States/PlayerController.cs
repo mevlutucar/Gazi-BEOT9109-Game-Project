@@ -203,20 +203,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void PlaySound(AudioClip clip, float volume)
+    public void PlaySound(AudioClip clip, float localVolume)
     {
         if (clip != null)
         {
+            // Options'daki SFX Slider'ýnýn deðerini çek
+            float globalSfxVol = PlayerPrefs.GetFloat("SFXVol", 1f);
+
             actionAudioSource.clip = clip;
-            actionAudioSource.volume = volume;
+            actionAudioSource.volume = localVolume * globalSfxVol;
             actionAudioSource.Play();
         }
     }
 
-    private void HandleMovementAudio(AudioClip clip, float volume)
+    private void HandleMovementAudio(AudioClip clip, float localVolume)
     {
         if (clip != null)
         {
+            float globalSfxVol = PlayerPrefs.GetFloat("SFXVol", 1f);
+
             if (movementAudioSource.clip != clip)
             {
                 movementAudioSource.clip = clip;
@@ -227,7 +232,7 @@ public class PlayerController : MonoBehaviour
                 movementAudioSource.Play();
             }
 
-            movementAudioSource.volume = volume;
+            movementAudioSource.volume = localVolume * globalSfxVol;
         }
     }
 

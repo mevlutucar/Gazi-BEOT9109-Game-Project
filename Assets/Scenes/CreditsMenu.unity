@@ -676,18 +676,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'KATKIDA BULUNANLAR
-
-
-    Game designed by Mevlut Ucar
-
-    Game Developed
-    by Mevlut Ucar & Google Gemini Pro
-
-    Assets by Synty Studio - Polygon Western
-    Frontier Pack
-
-    Icons by Icons8'
+  m_text: "Game men\xFC ve level tasar\u0131m\u0131 Mevl\xFCt U\xE7ar taraf\u0131ndan
+    yap\u0131lm\u0131\u015Ft\u0131r.\n\nOyun kodlamas\u0131 Mevl\xFCt U\xE7ar ve
+    Google Gemini Pro LLM ile yap\u0131lm\u0131\u015Ft\u0131r.\n\nOyun Assetleri
+    Synty Studio - Polygon Western Frontier Pack'tir ve Lisans\u0131 al\u0131nm\u0131\u015Ft\u0131r.\n\nOyun
+    i\xE7i simgeler Icons8 taraf\u0131ndan sa\u011Flanm\u0131\u015Ft\u0131r.\n\nOyun
+    i\xE7i m\xFCzik ve sesler, Freesound taraf\u0131ndan sa\u011Flanm\u0131\u015F
+    ve CC0 eserler kullan\u0131lm\u0131\u015Ft\u0131r."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

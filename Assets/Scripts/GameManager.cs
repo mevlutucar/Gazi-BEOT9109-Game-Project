@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour
     public Light directionalLight;
     public float realMinutesPerGameDay = 5f;
     private float gameMinutesPerRealSecond;
-    internal float currentTimeInMinutes = 360f; // 06:00 (360. dakika)
-    public int daysSurvived = 1; // Oyun 1. Günden baþlar
+    internal float currentTimeInMinutes = 360f;
+    public int daysSurvived = 1;
 
     [Header("Audio System & Volumes")]
     public AudioSource levelAudioSource;
@@ -52,7 +52,6 @@ public class GameManager : MonoBehaviour
             TogglePause();
         }
 
-        // --- CANLI SES KONTROLÜ (Slider'larýn çalýþmasýný saðlar) ---
         UpdateMusicVolumeLive();
     }
 
@@ -111,7 +110,6 @@ public class GameManager : MonoBehaviour
 
     private void PlayMusic(AudioClip clip)
     {
-        // Burada sadece müziði baþlatýyoruz, sesi "UpdateMusicVolumeLive" yönetecek
         if (clip != null && levelAudioSource.clip != clip)
         {
             levelAudioSource.clip = clip;
@@ -119,17 +117,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Inspector'daki Slider deðerlerini anlýk olarak AudioSource'a aktaran sistem
     private void UpdateMusicVolumeLive()
     {
         if (levelAudioSource == null || levelAudioSource.clip == null) return;
 
+        // Sadece "GameMusicVol" ayarýný okuyoruz (Slider 0 ise zaten sýfýr döner)
+        float globalGameMusicVol = PlayerPrefs.GetFloat("GameMusicVol", 1f);
+
         if (levelAudioSource.clip == lightTempoMusic)
-            levelAudioSource.volume = lightTempoVolume;
+            levelAudioSource.volume = lightTempoVolume * globalGameMusicVol;
         else if (levelAudioSource.clip == actionTempoMusic)
-            levelAudioSource.volume = actionTempoVolume;
+            levelAudioSource.volume = actionTempoVolume * globalGameMusicVol;
         else if (levelAudioSource.clip == nightAmbianceMusic)
-            levelAudioSource.volume = nightAmbianceVolume;
+            levelAudioSource.volume = nightAmbianceVolume * globalGameMusicVol;
     }
 
     private void TriggerConversation()
