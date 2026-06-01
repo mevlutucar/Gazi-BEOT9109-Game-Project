@@ -3,6 +3,16 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    void Start()
+    {
+        // Menü sahneleri (Ana Menü, Options, Credits) açýldýðý anda mouse'u görünür ve serbest yap
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Oyun içinden dönüldüðünde zamanýn donuk kalma ihtimaline karþý zamaný normal akýþýna al
+        Time.timeScale = 1f;
+    }
+
     public void LoadGameMainLevel()
     {
         SceneManager.LoadScene("GameMainLevel");

@@ -42214,7 +42214,7 @@ MonoBehaviour:
   runSpeed: 3
   jumpForce: 1
   gravity: -9.81
-  turnSpeed: 150
+  turnSpeed: 120
   normalFOV: 60
   runFOV: 50
   walkSound: {fileID: 8300000, guid: a79acf1489d9ff64fbd7dc78426fa9d1, type: 3}
