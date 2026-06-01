@@ -19,6 +19,10 @@ public class PlayerController : MonoBehaviour
     [Header("Weapon Models (3D)")]
     public GameObject rifleModel;
 
+    [Header("Shooting & FX")]
+    public Transform muzzlePoint; // 1. Adýmda yaptýðýmýz boþ objeyi sürükle
+    public ParticleSystem muzzleFlashFX; // 1. Adýmda içine attýðýn FX'i sürükle
+
     [Header("Weapon UI Icons")]
     public GameObject punchIconUI;
     public GameObject rifleIconUI;
@@ -188,6 +192,31 @@ public class PlayerController : MonoBehaviour
             {
                 anim.SetTrigger("Fire");
                 PlaySound(shootSound, shootVolume);
+
+                // Muzzle Flash FX'i çalýþtýr
+                if (muzzleFlashFX != null) muzzleFlashFX.Play();
+
+                // Crosshair'in gösterdiði yeri bulmak için Raycast (Kamera merkezinden)
+                Ray ray = cameraController.playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+                RaycastHit hit;
+                Vector3 targetPoint;
+
+                if (Physics.Raycast(ray, out hit, 100f))
+                {
+                    targetPoint = hit.point; // Crosshair'in deðdiði tam nokta
+                }
+                else
+                {
+                    targetPoint = ray.GetPoint(100f); // Çok uzak bir nokta (Havaya sýkýyorsa)
+                }
+
+                // Havuzdan Mermi Çaðýr
+                if (muzzlePoint != null)
+                {
+                    Vector3 directionWithoutSpread = targetPoint - muzzlePoint.position;
+                    GameObject bullet = ObjectPooler.Instance.SpawnFromPool("Bullet", muzzlePoint.position, Quaternion.LookRotation(directionWithoutSpread));
+                }
+
                 ammoCount--;
                 currentStamina -= 10f;
 
@@ -351,7 +380,7 @@ public class PlayerController : MonoBehaviour
     {
         if (currentStamina < maxStamina && currentState != deadState && !Input.GetKey(KeyCode.LeftShift))
         {
-            currentStamina += Time.deltaTime * 5f;
+            currentStamina += Time.deltaTime * 30f;
             uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
         }
     }

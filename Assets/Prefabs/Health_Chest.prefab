@@ -459,10 +459,10 @@ GameObject:
   - component: {fileID: 5180933160349218639}
   - component: {fileID: 5478285495709074187}
   - component: {fileID: 6954493214088954795}
-  - component: {fileID: 2910140694093191638}
+  - component: {fileID: 8888248002171447187}
   m_Layer: 0
   m_Name: Health_Chest
-  m_TagString: Untagged
+  m_TagString: Health
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -484,6 +484,7 @@ Transform:
   - {fileID: 8811282603046923357}
   - {fileID: 2941186938976810333}
   - {fileID: 6835252518408013014}
+  - {fileID: 2395577453511576168}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5478285495709074187
@@ -543,8 +544,8 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2910140694093191638
-MeshCollider:
+--- !u!65 &8888248002171447187
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -558,10 +559,40 @@ MeshCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43446083140777794, guid: 0042a4c32d8b07c4e84d7ee28df9dec3, type: 2}
+  serializedVersion: 3
+  m_Size: {x: 1.1766217, y: 0.69437104, z: 0.61161864}
+  m_Center: {x: 0, y: 0.34718552, z: 0}
+--- !u!1 &8976721988017625235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2395577453511576168}
+  m_Layer: 0
+  m_Name: Ground_Detection
+  m_TagString: Untagged
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2395577453511576168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8976721988017625235}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.03, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5180933160349218639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

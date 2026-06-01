@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Bullet
+  - Health
+  - Ammo
+  - Axe
   layers:
   - Default
   - TransparentFX
