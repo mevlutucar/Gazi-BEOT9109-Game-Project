@@ -17114,8 +17114,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   playerCamera: {fileID: 330585545}
-  normalRotX: 10
-  aimRotX: 10
+  mouseSensitivity: 120
+  minXAngleRotation: -20
+  maxXAngleRotation: 20
 --- !u!1001 &331639443
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42213,7 +42214,9 @@ MonoBehaviour:
   runSpeed: 3
   jumpForce: 1
   gravity: -9.81
-  turnSpeed: 60
+  turnSpeed: 150
+  normalFOV: 60
+  runFOV: 50
   walkSound: {fileID: 8300000, guid: a79acf1489d9ff64fbd7dc78426fa9d1, type: 3}
   runSound: {fileID: 8300000, guid: a088ed3158ae9cd44a46b7b6b8f30c48, type: 3}
   jumpSound: {fileID: 8300000, guid: 30c847bb22f366f4e8480338037dc611, type: 3}

@@ -20,8 +20,8 @@ public class PlayerController : MonoBehaviour
     public GameObject rifleModel;
 
     [Header("Shooting & FX")]
-    public Transform muzzlePoint; // 1. Adýmda yaptýðýmýz boþ objeyi sürükle
-    public ParticleSystem muzzleFlashFX; // 1. Adýmda içine attýðýn FX'i sürükle
+    public Transform muzzlePoint;
+    public ParticleSystem muzzleFlashFX;
 
     [Header("Weapon UI Icons")]
     public GameObject punchIconUI;
@@ -29,14 +29,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("Bone Alignment (LateUpdate)")]
     public Transform rootBone;
-
-    // Geçiþ hýzýný Inspector'dan dilediðin gibi ayarlayabilirsin (Varsayýlan: 20f çok seri ve tok bir geçiþtir)
     [Range(1f, 50f)] public float boneTransitionSpeed = 20f;
 
     private Vector3 defaultRiflePos;
     private Quaternion defaultRifleRot;
-
-    // Geçiþlerin süzülmesini engelleyen IK Aðýrlýk deðiþkenleri
     private float rifleIKWeight = 0f;
     private float rootIKWeight = 0f;
 
@@ -57,6 +53,10 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 5f;
     public float gravity = -9.81f;
     public float turnSpeed = 150f;
+
+    [Header("Camera FOV Settings")]
+    public float normalFOV = 60f; // Eskiden 75'ti, artýk daha doðal bir açýda
+    public float runFOV = 50f;    // Koþarken hafif yakýnlaþýr
 
     [Header("Audio Clips")]
     public AudioClip walkSound, runSound, jumpSound, shootSound, emptyMagSound;
@@ -81,7 +81,6 @@ public class PlayerController : MonoBehaviour
     internal bool isGrounded;
     internal IPlayerState currentState;
 
-    // States
     public UnarmedState unarmedState = new UnarmedState();
     public ArmedState armedState = new ArmedState();
     public AimingState aimingState = new AimingState();
@@ -128,7 +127,6 @@ public class PlayerController : MonoBehaviour
         RecoverStamina();
     }
 
-    // --- PROFESYONEL IK (WEIGHT) GÜNCELLEMESÝ ---
     void LateUpdate()
     {
         if (GameManager.Instance.isPaused || currentState == deadState || rifleModel == null || rootBone == null) return;
@@ -142,28 +140,21 @@ public class PlayerController : MonoBehaviour
         bool applyRootRotation = stateInfo.IsName("Firing Rifle") ||
                                  stateInfo.IsName("Rifle Aiming Idle");
 
-        // 1. Hedef aðýrlýklarý belirliyoruz (1 = Pozisyonumuzu al, 0 = Varsayýlaný al)
         float targetRifleWeight = applyRifleOffset ? 1f : 0f;
         float targetRootWeight = applyRootRotation ? 1f : 0f;
 
-        // 2. Aðýrlýklarý Inspector'dan belirlediðimiz hýzla linear olarak dolduruyoruz
         rifleIKWeight = Mathf.MoveTowards(rifleIKWeight, targetRifleWeight, boneTransitionSpeed * Time.deltaTime);
         rootIKWeight = Mathf.MoveTowards(rootIKWeight, targetRootWeight, boneTransitionSpeed * Time.deltaTime);
 
-        // 3. SÝLAH GEÇÝÞÝ: Animasyonla tam uyumlu çalýþýr, süzülme yapmaz
         Vector3 customRiflePos = new Vector3(-7f, -4.1f, 5.9f);
         Quaternion customRifleRot = Quaternion.Euler(-13.81f, -121.439f, -29.97f);
 
         rifleModel.transform.localPosition = Vector3.Lerp(defaultRiflePos, customRiflePos, rifleIKWeight);
         rifleModel.transform.localRotation = Quaternion.Slerp(defaultRifleRot, customRifleRot, rifleIKWeight);
 
-        // 4. ROOT GEÇÝÞÝ: Anýnda dönmek yerine Animator'ün doðal dönüþüne (ham haline) harmanlýyoruz
-        if (rootIKWeight > 0.01f) // Ufak optimizasyon (0 ise hesaplama yapmaz)
+        if (rootIKWeight > 0.01f)
         {
             Quaternion customRootRot = Quaternion.Euler(0f, 45f, 0f);
-
-            // rootBone.localRotation o an Animator'ün verdiði saf/doðal animasyon açýsýdýr.
-            // Biz bu açýyý kendi aðýrlýðýmýzla (rootIKWeight) kendi hedefimize doðru büküyoruz.
             rootBone.localRotation = Quaternion.Slerp(rootBone.localRotation, customRootRot, rootIKWeight);
         }
     }
@@ -191,8 +182,6 @@ public class PlayerController : MonoBehaviour
             if (ammoCount > 0 && currentStamina >= 10f)
             {
                 nextFireTime = Time.time + fireRate;
-
-                // Ateþ etme sekansýný (gecikmeli) baþlat
                 StartCoroutine(FireSequence());
             }
             else
@@ -212,29 +201,23 @@ public class PlayerController : MonoBehaviour
         uiManager.UpdateAmmoText(ammoCount);
         uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
 
-        // 1. SÝLAHI ANINDA HEDEFE OTURT (Geçiþi bekleme)
         rifleIKWeight = 1f;
         rootIKWeight = 1f;
 
-        // 2. EN ÖNEMLÝ KISIM: Kameranýn ve Silah IK'nýn (LateUpdate) tam hedefe oturmasýný bekle
         yield return new WaitForEndOfFrame();
 
-        // 3. EFEKTLERÝ VE MERMÝYÝ SÝLAH DOÐRU YERDEYKEN ÇAÐIR
         PlaySound(shootSound, shootVolume);
 
         if (muzzleFlashFX != null) muzzleFlashFX.Play();
 
-        // Kameranýn merkezinden ýþýnla hedef belirle
         Ray ray = cameraController.playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        Vector3 targetPoint = ray.GetPoint(100f); // Varsayýlan hedef (Boþluða sýkarsak)
+        Vector3 targetPoint = ray.GetPoint(100f);
 
-        // Iþýn atýlan yerdeki tüm objeleri bul ve sýrala
         RaycastHit[] hits = Physics.RaycastAll(ray, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         foreach (RaycastHit hit in hits)
         {
-            // Kendimizi Vurmayý Engelle! (Karakterin görünmez duvarlarýný yoksay)
             if (!hit.collider.CompareTag("Player") && !hit.collider.transform.root.CompareTag("Player"))
             {
                 targetPoint = hit.point;
@@ -242,7 +225,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Mermiyi namlunun ucundan (MuzzlePoint) hedefe doðru yolla
         if (muzzlePoint != null)
         {
             Vector3 directionWithoutSpread = targetPoint - muzzlePoint.position;
@@ -254,7 +236,6 @@ public class PlayerController : MonoBehaviour
     {
         if (clip != null)
         {
-            // Options'daki SFX Slider'ýnýn deðerini çek
             float globalSfxVol = PlayerPrefs.GetFloat("SFXVol", 1f);
 
             actionAudioSource.clip = clip;
@@ -293,15 +274,16 @@ public class PlayerController : MonoBehaviour
 
     public void HandleMovementAndRotation()
     {
-        float turnInput = Input.GetAxisRaw("Horizontal");
+        // 1. DÖNÜÞ: A/D tuþlarý yengeç yürüyüþünden çýkarýldý. Artýk farenin saða/sola hareketiyle BÝRLEÞEREK karakteri döndürüyor.
+        float mouseX = Input.GetAxis("Mouse X") * cameraController.mouseSensitivity * Time.deltaTime;
+        float keyTurn = Input.GetAxisRaw("Horizontal") * turnSpeed * Time.deltaTime;
+
+        transform.Rotate(0f, mouseX + keyTurn, 0f);
+
+        // 2. ÝLERÝ/GERÝ HAREKET: W ve S tuþlarý
         float moveInput = Input.GetAxisRaw("Vertical");
 
-        if (turnInput != 0)
-        {
-            float rotationAmount = turnInput * turnSpeed * Time.deltaTime;
-            transform.Rotate(0f, rotationAmount, 0f);
-        }
-
+        // Yalnýzca ileri veya geri gidiliyorsa yürüme animasyonunu tetikle
         bool isMoving = moveInput != 0;
         bool isRunning = Input.GetKey(KeyCode.LeftShift) && isMoving && moveInput > 0 && currentStamina > 0;
         float currentSpeed = isRunning ? runSpeed : (isMoving ? walkSpeed : 0f);
@@ -314,9 +296,10 @@ public class PlayerController : MonoBehaviour
 
         anim.SetFloat("Speed", isMoving ? currentSpeed : 0f);
 
+        // Yeni FOV sistemi devreye girdi (Inspector'dan ayarlanabilir normalFOV ve runFOV deðerleri)
         if (currentState != aimingState)
         {
-            cameraController.SetAimTarget(false, isRunning ? 65f : 75f);
+            cameraController.SetAimTarget(false, isRunning ? runFOV : normalFOV);
         }
 
         if (isRunning)
