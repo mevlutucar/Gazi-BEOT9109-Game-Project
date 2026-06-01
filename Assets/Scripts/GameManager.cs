@@ -24,6 +24,11 @@ public class GameManager : MonoBehaviour
     public AudioClip nightAmbianceMusic;
     [Range(0f, 1f)] public float nightAmbianceVolume = 1f;
 
+    [Header("Conversation Audio")]
+    public AudioClip conversationMusic; // Inspector'dan diyalog anýnda çalacak müziði ata
+    [Range(0f, 1f)] public float conversationMusicVolume = 1f;
+    private AudioSource conversationAudioSource; // Kod tarafýndan otomatik oluþturulacak
+
     internal bool isPaused = false;
     private bool hasTriggeredConversation = false;
     private bool isDayMusicPlaying = false;
@@ -32,6 +37,12 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         gameMinutesPerRealSecond = 1440f / (realMinutesPerGameDay * 60f);
+
+        // Diyalog müziði için gizli bir ses kaynaðý oluþturuyoruz
+        conversationAudioSource = gameObject.AddComponent<AudioSource>();
+        conversationAudioSource.loop = true;
+        // EN ÖNEMLÝ KISIM: AudioListener dursa bile bu müzik çalmaya devam etsin
+        conversationAudioSource.ignoreListenerPause = true;
     }
 
     void Start()
@@ -110,7 +121,7 @@ public class GameManager : MonoBehaviour
 
     private void PlayMusic(AudioClip clip)
     {
-        if (clip != null && levelAudioSource.clip != clip)
+        if (clip != null && levelAudioSource != null && levelAudioSource.clip != clip)
         {
             levelAudioSource.clip = clip;
             levelAudioSource.Play();
@@ -119,17 +130,23 @@ public class GameManager : MonoBehaviour
 
     private void UpdateMusicVolumeLive()
     {
-        if (levelAudioSource == null || levelAudioSource.clip == null) return;
-
-        // Sadece "GameMusicVol" ayarýný okuyoruz (Slider 0 ise zaten sýfýr döner)
         float globalGameMusicVol = PlayerPrefs.GetFloat("GameMusicVol", 1f);
 
-        if (levelAudioSource.clip == lightTempoMusic)
-            levelAudioSource.volume = lightTempoVolume * globalGameMusicVol;
-        else if (levelAudioSource.clip == actionTempoMusic)
-            levelAudioSource.volume = actionTempoVolume * globalGameMusicVol;
-        else if (levelAudioSource.clip == nightAmbianceMusic)
-            levelAudioSource.volume = nightAmbianceVolume * globalGameMusicVol;
+        if (levelAudioSource != null && levelAudioSource.clip != null)
+        {
+            if (levelAudioSource.clip == lightTempoMusic)
+                levelAudioSource.volume = lightTempoVolume * globalGameMusicVol;
+            else if (levelAudioSource.clip == actionTempoMusic)
+                levelAudioSource.volume = actionTempoVolume * globalGameMusicVol;
+            else if (levelAudioSource.clip == nightAmbianceMusic)
+                levelAudioSource.volume = nightAmbianceVolume * globalGameMusicVol;
+        }
+
+        // Diyalog müziðinin de Ayarlar Menüsünden etkilenmesini saðlýyoruz
+        if (conversationAudioSource != null)
+        {
+            conversationAudioSource.volume = conversationMusicVolume * globalGameMusicVol;
+        }
     }
 
     private void TriggerConversation()
@@ -137,6 +154,16 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
         uiManager.ShowConversationCanvas();
+
+        // Arka plandaki TÜM SESLERÝ VE MÜZÝKLERÝ dondur/sustur
+        AudioListener.pause = true;
+
+        // Sadece diyalog müziðini baþlat
+        if (conversationMusic != null && conversationAudioSource != null)
+        {
+            conversationAudioSource.clip = conversationMusic;
+            conversationAudioSource.Play();
+        }
     }
 
     public void TogglePause()
@@ -151,6 +178,15 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1f;
         uiManager.ShowInGameCanvas();
+
+        // Arka plandaki dondurulmuþ tüm sesleri ve müzikleri KALDIÐI YERDEN devam ettir
+        AudioListener.pause = false;
+
+        // Diyalog müziðini kapat
+        if (conversationAudioSource != null && conversationAudioSource.isPlaying)
+        {
+            conversationAudioSource.Stop();
+        }
 
         if (hasTriggeredConversation && (currentTimeInMinutes % 1440f) >= 1141f)
         {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic; // Liste hafýzasý için eklendi
 
 // --- 1. STRATEGY PATTERN (Konumlandýrma Stratejisi) ---
 public interface ISpawnStrategy
@@ -40,7 +41,6 @@ public abstract class LootItem : MonoBehaviour
             player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                // OnCollect artýk true/false dönüyor. Sadece true dönerse kutu yok olur.
                 bool isCollected = OnCollect();
                 if (isCollected)
                 {
@@ -50,7 +50,6 @@ public abstract class LootItem : MonoBehaviour
         }
     }
 
-    // Toplama iþlemi baþarýlýysa true dönmeli
     protected abstract bool OnCollect();
 }
 
@@ -58,18 +57,19 @@ public class HealthChest : LootItem
 {
     protected override bool OnCollect()
     {
-        // CAN KONTROLÜ: Can zaten full ise toplama iþlemini iptal et (false dön)
-        if (player.currentHealth >= player.maxHealth)
-        {
-            return false;
-        }
+        if (player.currentHealth >= player.maxHealth) return false; // Can fullse alma
 
         player.currentHealth += 25f;
         if (player.currentHealth > player.maxHealth) player.currentHealth = player.maxHealth;
 
         player.uiManager.UpdatePlayerBars(player.currentHealth, player.maxHealth, player.currentStamina, player.maxStamina);
 
-        return true; // Baþarýyla toplandý, kutuyu yok et
+        if (LootSystem.Instance.healthCollectSound != null)
+        {
+            player.PlaySound(LootSystem.Instance.healthCollectSound, 1f);
+        }
+
+        return true;
     }
 }
 
@@ -84,7 +84,12 @@ public class AmmoChest : LootItem
         player.ammoCount = currentAmmo;
         player.uiManager.UpdateAmmoText(currentAmmo);
 
-        return true; // Mermi her zaman toplanabilir, kutuyu yok et
+        if (LootSystem.Instance.ammoCollectSound != null)
+        {
+            player.PlaySound(LootSystem.Instance.ammoCollectSound, 1f);
+        }
+
+        return true;
     }
 }
 
@@ -93,12 +98,26 @@ public enum LootType { Health, Ammo }
 // --- 2. ANA YÖNETÝCÝ VE FABRÝKA METODU (LootSystem) ---
 public class LootSystem : MonoBehaviour
 {
+    public static LootSystem Instance;
+
     [Header("Loot Prefablarý")]
     public GameObject healthChestPrefab;
     public GameObject ammoChestPrefab;
 
+    [Header("Loot Toplama Sesleri (SFX)")]
+    public AudioClip healthCollectSound;
+    public AudioClip ammoCollectSound;
+
     private ISpawnStrategy spawnStrategy;
     private bool hasSpawnedTonight = false;
+
+    // Gündüzleri silmek için kutularý tuttuðumuz hafýza listesi
+    private List<GameObject> activeLoots = new List<GameObject>();
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
 
     void Start()
     {
@@ -109,7 +128,8 @@ public class LootSystem : MonoBehaviour
     {
         float time = GameManager.Instance.currentTimeInMinutes % 1440f;
 
-        if (time >= 1141f || time < 359f)
+        // Saat 19:01 (1141) ile 05:59 (359) arasý Gece Vakti: Kutularý oluþtur
+        if (time >= 1141f || time < 360f)
         {
             if (!hasSpawnedTonight)
             {
@@ -117,9 +137,13 @@ public class LootSystem : MonoBehaviour
                 hasSpawnedTonight = true;
             }
         }
-        else
+        else // Saat 06:00 itibariyle Gündüz Vakti: Kalan kutularý temizle
         {
-            if (time > 360f && time < 1000f) hasSpawnedTonight = false;
+            if (hasSpawnedTonight)
+            {
+                ClearLootWave();
+                hasSpawnedTonight = false;
+            }
         }
     }
 
@@ -136,6 +160,8 @@ public class LootSystem : MonoBehaviour
         {
             GameObject healthChest = CreateLoot(LootType.Health, spawnStrategy.GetSpawnPosition());
             if (healthChest.GetComponent<HealthChest>() == null) healthChest.AddComponent<HealthChest>();
+
+            activeLoots.Add(healthChest); // Üretilen kutuyu hafýzaya kaydet
         }
 
         int ammoAmount = Random.Range(8, 17);
@@ -143,6 +169,18 @@ public class LootSystem : MonoBehaviour
         {
             GameObject ammoChest = CreateLoot(LootType.Ammo, spawnStrategy.GetSpawnPosition());
             if (ammoChest.GetComponent<AmmoChest>() == null) ammoChest.AddComponent<AmmoChest>();
+
+            activeLoots.Add(ammoChest); // Üretilen kutuyu hafýzaya kaydet
         }
+    }
+
+    // Haritada toplanmamýþ ne kadar kutu varsa döngüyle temizler
+    private void ClearLootWave()
+    {
+        foreach (GameObject loot in activeLoots)
+        {
+            if (loot != null) Destroy(loot);
+        }
+        activeLoots.Clear(); // Listeyi ertesi gece için boþalt
     }
 }

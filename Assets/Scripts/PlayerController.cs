@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
         actionAudioSource = gameObject.AddComponent<AudioSource>();
         actionAudioSource.loop = false;
 
-        currentHealth = maxHealth;
+        currentHealth = 90;
         currentStamina = maxStamina;
 
         if (rifleModel != null)
@@ -190,45 +190,63 @@ public class PlayerController : MonoBehaviour
         {
             if (ammoCount > 0 && currentStamina >= 10f)
             {
-                anim.SetTrigger("Fire");
-                PlaySound(shootSound, shootVolume);
+                nextFireTime = Time.time + fireRate;
 
-                // Muzzle Flash FX'i çalýþtýr
-                if (muzzleFlashFX != null) muzzleFlashFX.Play();
-
-                // Crosshair'in gösterdiði yeri bulmak için Raycast (Kamera merkezinden)
-                Ray ray = cameraController.playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-                RaycastHit hit;
-                Vector3 targetPoint;
-
-                if (Physics.Raycast(ray, out hit, 100f))
-                {
-                    targetPoint = hit.point; // Crosshair'in deðdiði tam nokta
-                }
-                else
-                {
-                    targetPoint = ray.GetPoint(100f); // Çok uzak bir nokta (Havaya sýkýyorsa)
-                }
-
-                // Havuzdan Mermi Çaðýr
-                if (muzzlePoint != null)
-                {
-                    Vector3 directionWithoutSpread = targetPoint - muzzlePoint.position;
-                    GameObject bullet = ObjectPooler.Instance.SpawnFromPool("Bullet", muzzlePoint.position, Quaternion.LookRotation(directionWithoutSpread));
-                }
-
-                ammoCount--;
-                currentStamina -= 10f;
-
-                uiManager.UpdateAmmoText(ammoCount);
-                uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
+                // Ateþ etme sekansýný (gecikmeli) baþlat
+                StartCoroutine(FireSequence());
             }
             else
             {
                 PlaySound(emptyMagSound, emptyMagVolume);
+                nextFireTime = Time.time + fireRate;
             }
+        }
+    }
 
-            nextFireTime = Time.time + fireRate;
+    private IEnumerator FireSequence()
+    {
+        anim.SetTrigger("Fire");
+        ammoCount--;
+        currentStamina -= 10f;
+
+        uiManager.UpdateAmmoText(ammoCount);
+        uiManager.UpdatePlayerBars(currentHealth, maxHealth, currentStamina, maxStamina);
+
+        // 1. SÝLAHI ANINDA HEDEFE OTURT (Geçiþi bekleme)
+        rifleIKWeight = 1f;
+        rootIKWeight = 1f;
+
+        // 2. EN ÖNEMLÝ KISIM: Kameranýn ve Silah IK'nýn (LateUpdate) tam hedefe oturmasýný bekle
+        yield return new WaitForEndOfFrame();
+
+        // 3. EFEKTLERÝ VE MERMÝYÝ SÝLAH DOÐRU YERDEYKEN ÇAÐIR
+        PlaySound(shootSound, shootVolume);
+
+        if (muzzleFlashFX != null) muzzleFlashFX.Play();
+
+        // Kameranýn merkezinden ýþýnla hedef belirle
+        Ray ray = cameraController.playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Vector3 targetPoint = ray.GetPoint(100f); // Varsayýlan hedef (Boþluða sýkarsak)
+
+        // Iþýn atýlan yerdeki tüm objeleri bul ve sýrala
+        RaycastHit[] hits = Physics.RaycastAll(ray, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            // Kendimizi Vurmayý Engelle! (Karakterin görünmez duvarlarýný yoksay)
+            if (!hit.collider.CompareTag("Player") && !hit.collider.transform.root.CompareTag("Player"))
+            {
+                targetPoint = hit.point;
+                break;
+            }
+        }
+
+        // Mermiyi namlunun ucundan (MuzzlePoint) hedefe doðru yolla
+        if (muzzlePoint != null)
+        {
+            Vector3 directionWithoutSpread = targetPoint - muzzlePoint.position;
+            ObjectPooler.Instance.SpawnFromPool("Bullet", muzzlePoint.position, Quaternion.LookRotation(directionWithoutSpread));
         }
     }
 
