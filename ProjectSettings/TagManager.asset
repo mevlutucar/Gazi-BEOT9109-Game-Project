@@ -8,6 +8,8 @@ TagManager:
   - Health
   - Ammo
   - Axe
+  - Ally
+  - Enemy
   layers:
   - Default
   - TransparentFX
