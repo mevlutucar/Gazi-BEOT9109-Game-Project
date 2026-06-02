@@ -86,6 +86,8 @@ public class PlayerController : MonoBehaviour
     public AimingState aimingState = new AimingState();
     public DeadState deadState = new DeadState();
 
+    private AllyNPC currentInteractable;
+
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -125,6 +127,41 @@ public class PlayerController : MonoBehaviour
         currentState.UpdateState(this);
         ApplyGravity();
         RecoverStamina();
+
+        // YAKINDAKÝ DOST (ALLY) VE EASTER EGG NPC KONTROLÜ (3 Metre Çapýnda)
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 3f);
+        currentInteractable = null;
+
+        foreach (var col in hitColliders)
+        {
+            // DÜZELTME BURADA: Artýk sadece "Ally" deðil, "Enemy" tagine de bakýyoruz
+            if (col.CompareTag("Ally") || col.CompareTag("Enemy"))
+            {
+                // Objenin üzerinde AllyNPC scripti var mý diye kontrol et!
+                // Bu sayede normal düþmanlara (EnemyNPC) yaklaþtýðýnda "E" tuþu yazýsý çýkmaz,
+                // sadece Tag'i Enemy yapýlmýþ olan Wheel_NPC_1'de çýkar.
+                AllyNPC npc = col.GetComponent<AllyNPC>();
+                if (npc != null && npc.canInteract)
+                {
+                    currentInteractable = npc;
+                    break;
+                }
+            }
+        }
+
+        if (currentInteractable != null)
+        {
+            uiManager.ShowInteractText(true); // Ekranda "E tuþuna basýn" yazýsý çýkar
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                currentInteractable.Interact(this);
+                anim.SetTrigger("Yell"); // Karakter Yelling animasyonu oynatýr
+            }
+        }
+        else
+        {
+            uiManager.ShowInteractText(false);
+        }
     }
 
     void LateUpdate()
@@ -221,6 +258,21 @@ public class PlayerController : MonoBehaviour
             if (!hit.collider.CompareTag("Player") && !hit.collider.transform.root.CompareTag("Player"))
             {
                 targetPoint = hit.point;
+
+                // EÐER VURULAN KÝÞÝ DÜÞMANSA (ENEMY TAG'ÝNE SAHÝP HERHANGÝ BÝRÝ)
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    // Kan efektini tam vurulan yerde çýkar
+                    ObjectPooler.Instance.SpawnFromPool("BloodFX", targetPoint, Quaternion.LookRotation(hit.normal));
+
+                    // 1. Durum: Bu normal bir düþmansa hasar ver
+                    EnemyNPC enemy = hit.collider.GetComponentInParent<EnemyNPC>();
+                    if (enemy != null) enemy.TakeDamage(25);
+
+                    // 2. Durum: Bu bizim Easter Egg Wheel NPC ise hasar ver (Ýkisi birbiriyle çakýþmaz)
+                    AllyNPC ally = hit.collider.GetComponentInParent<AllyNPC>();
+                    if (ally != null) ally.TakeDamage(25);
+                }
                 break;
             }
         }

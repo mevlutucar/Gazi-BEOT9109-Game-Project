@@ -31,6 +31,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI gamePausedTxt;
     public TextMeshProUGUI endGameTxt;
 
+    [Header("Ally TXT GameObject")]
+    public GameObject interactTextObj;
+
     private bool isAiming = false;
     private float crosshairLerpSpeed = 10f;
 
@@ -157,6 +160,12 @@ public class UIManager : MonoBehaviour
     {
         npcObj.SetActive(false);
         leaderObj.SetActive(true);
+    }
+
+    public void ShowInteractText(bool state) 
+    { 
+        if (interactTextObj != null) 
+            interactTextObj.SetActive(state);
     }
 
     public void Btn_Leader_FinishTalk()

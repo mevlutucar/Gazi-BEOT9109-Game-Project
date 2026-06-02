@@ -20,12 +20,15 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // KENDÝNÝ VURMAYI ÖNLER: Çarpýlan obje tetikleyiciyse, Player ise veya Player'ýn elindeki bir silahsa yoksay!
         if (other.isTrigger || other.CompareTag("Player") || other.CompareTag("Bullet") || other.transform.root.CompareTag("Player"))
             return;
 
-        Vector3 hitPoint = transform.position;
-        ObjectPooler.Instance.SpawnFromPool("BloodFX", hitPoint, Quaternion.identity);
+        // SADECE "Enemy" tagine sahip olan nesnelere çarpýldýðýnda kan çýkar!
+        if (other.CompareTag("Enemy"))
+        {
+            Vector3 hitPoint = transform.position;
+            ObjectPooler.Instance.SpawnFromPool("BloodFX", hitPoint, Quaternion.identity);
+        }
 
         gameObject.SetActive(false);
     }

@@ -12,6 +12,10 @@ public class GameManager : MonoBehaviour
     internal float currentTimeInMinutes = 360f;
     public int daysSurvived = 1;
 
+    [Header("NPC Management (Pooling)")]
+    public Transform allyNPCsParent;
+    public Transform enemyNPCsParent;
+
     [Header("Audio System & Volumes")]
     public AudioSource levelAudioSource;
 
@@ -25,23 +29,30 @@ public class GameManager : MonoBehaviour
     [Range(0f, 1f)] public float nightAmbianceVolume = 1f;
 
     [Header("Conversation Audio")]
-    public AudioClip conversationMusic; // Inspector'dan diyalog anýnda çalacak müziði ata
+    public AudioClip conversationMusic;
     [Range(0f, 1f)] public float conversationMusicVolume = 1f;
-    private AudioSource conversationAudioSource; // Kod tarafýndan otomatik oluþturulacak
+    private AudioSource conversationAudioSource;
 
     internal bool isPaused = false;
     private bool hasTriggeredConversation = false;
     private bool isDayMusicPlaying = false;
+
+    // Döngü Tetikleyicileri
+    private bool hasTriggeredMorning = false;
+    private bool hasTriggeredEvening = false;
+    private bool hasTriggeredNight = false;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
         gameMinutesPerRealSecond = 1440f / (realMinutesPerGameDay * 60f);
 
-        // Diyalog müziði için gizli bir ses kaynaðý oluþturuyoruz
+        // --- BU SATIR EKSÝKTÝ, BURAYA EKLÝYORUZ ---
+        // Inspector'daki sýfýrlanmayý ezer, oyunu her zaman Gün 1'den baþlatýr.
+        daysSurvived = 1;
+
         conversationAudioSource = gameObject.AddComponent<AudioSource>();
         conversationAudioSource.loop = true;
-        // EN ÖNEMLÝ KISIM: AudioListener dursa bile bu müzik çalmaya devam etsin
         conversationAudioSource.ignoreListenerPause = true;
     }
 
@@ -49,20 +60,14 @@ public class GameManager : MonoBehaviour
     {
         PlayMusic(lightTempoMusic);
         isDayMusicPlaying = true;
+
+        uiManager.UpdateDayTimeText(daysSurvived, 6, 0);
     }
 
     void Update()
     {
-        if (!isPaused)
-        {
-            UpdateDayNightCycle();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape) && uiManager.inGameCanvas.activeSelf)
-        {
-            TogglePause();
-        }
-
+        if (!isPaused) UpdateDayNightCycle();
+        if (Input.GetKeyDown(KeyCode.Escape) && uiManager.inGameCanvas.activeSelf) TogglePause();
         UpdateMusicVolumeLive();
     }
 
@@ -75,6 +80,9 @@ public class GameManager : MonoBehaviour
             currentTimeInMinutes -= 1440f;
             daysSurvived++;
             hasTriggeredConversation = false;
+            hasTriggeredMorning = false;
+            hasTriggeredEvening = false;
+            hasTriggeredNight = false;
         }
 
         float displayTime = currentTimeInMinutes % 1440f;
@@ -101,21 +109,52 @@ public class GameManager : MonoBehaviour
 
     private void CheckTimeEvents(float displayTime)
     {
-        if (displayTime >= 1141f && displayTime < 1142f)
+        // 06:00 - SABAHLARI ALLY'LER DOÐAR, ENEMY'LER YOK OLUR
+        if (displayTime >= 360f && !hasTriggeredMorning)
         {
-            if (!hasTriggeredConversation)
-            {
-                isDayMusicPlaying = false;
-                PlayMusic(actionTempoMusic);
-                TriggerConversation();
-                hasTriggeredConversation = true;
-            }
+            ToggleNPCs(allyNPCsParent, true);
+            ToggleNPCs(enemyNPCsParent, false);
+            hasTriggeredMorning = true;
+        }
+
+        // 18:00 - AKÞAMLARI ENEMY'LER DOÐAR
+        if (displayTime >= 1080f && !hasTriggeredEvening)
+        {
+            ToggleNPCs(enemyNPCsParent, true);
+            hasTriggeredEvening = true;
+        }
+
+        // 18:59 - GÜNBATIMI SÝNYALÝ (Sadece sinyal gider, Ally'ler burada kapanmaz)
+        if (displayTime >= 1139f && displayTime < 1140f && !hasTriggeredNight)
+        {
+            GameEvents.TriggerSunset();
+            hasTriggeredNight = true; // Sinyalin 1 kez gitmesi için
+        }
+
+        // 19:01 - KONUÞMA TETÝKLEME
+        if (displayTime >= 1141f && displayTime < 1142f && !hasTriggeredConversation)
+        {
+            isDayMusicPlaying = false;
+            PlayMusic(actionTempoMusic);
+            TriggerConversation();
+            hasTriggeredConversation = true;
         }
 
         if (displayTime >= 360f && displayTime < 361f && !isDayMusicPlaying)
         {
             PlayMusic(lightTempoMusic);
             isDayMusicPlaying = true;
+        }
+    }
+
+    private void ToggleNPCs(Transform parentObj, bool state)
+    {
+        if (parentObj != null)
+        {
+            foreach (Transform child in parentObj)
+            {
+                child.gameObject.SetActive(state);
+            }
         }
     }
 
@@ -134,19 +173,12 @@ public class GameManager : MonoBehaviour
 
         if (levelAudioSource != null && levelAudioSource.clip != null)
         {
-            if (levelAudioSource.clip == lightTempoMusic)
-                levelAudioSource.volume = lightTempoVolume * globalGameMusicVol;
-            else if (levelAudioSource.clip == actionTempoMusic)
-                levelAudioSource.volume = actionTempoVolume * globalGameMusicVol;
-            else if (levelAudioSource.clip == nightAmbianceMusic)
-                levelAudioSource.volume = nightAmbianceVolume * globalGameMusicVol;
+            if (levelAudioSource.clip == lightTempoMusic) levelAudioSource.volume = lightTempoVolume * globalGameMusicVol;
+            else if (levelAudioSource.clip == actionTempoMusic) levelAudioSource.volume = actionTempoVolume * globalGameMusicVol;
+            else if (levelAudioSource.clip == nightAmbianceMusic) levelAudioSource.volume = nightAmbianceVolume * globalGameMusicVol;
         }
 
-        // Diyalog müziðinin de Ayarlar Menüsünden etkilenmesini saðlýyoruz
-        if (conversationAudioSource != null)
-        {
-            conversationAudioSource.volume = conversationMusicVolume * globalGameMusicVol;
-        }
+        if (conversationAudioSource != null) conversationAudioSource.volume = conversationMusicVolume * globalGameMusicVol;
     }
 
     private void TriggerConversation()
@@ -154,11 +186,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
         uiManager.ShowConversationCanvas();
-
-        // Arka plandaki TÜM SESLERÝ VE MÜZÝKLERÝ dondur/sustur
         AudioListener.pause = true;
 
-        // Sadece diyalog müziðini baþlat
         if (conversationMusic != null && conversationAudioSource != null)
         {
             conversationAudioSource.clip = conversationMusic;
@@ -178,19 +207,11 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1f;
         uiManager.ShowInGameCanvas();
-
-        // Arka plandaki dondurulmuþ tüm sesleri ve müzikleri KALDIÐI YERDEN devam ettir
         AudioListener.pause = false;
 
-        // Diyalog müziðini kapat
-        if (conversationAudioSource != null && conversationAudioSource.isPlaying)
-        {
-            conversationAudioSource.Stop();
-        }
+        if (conversationAudioSource != null && conversationAudioSource.isPlaying) conversationAudioSource.Stop();
+        if (hasTriggeredConversation && (currentTimeInMinutes % 1440f) >= 1141f) PlayMusic(nightAmbianceMusic);
 
-        if (hasTriggeredConversation && (currentTimeInMinutes % 1440f) >= 1141f)
-        {
-            PlayMusic(nightAmbianceMusic);
-        }
+        GameEvents.TriggerConversationEnded();
     }
 }
