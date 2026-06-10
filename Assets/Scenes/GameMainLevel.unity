@@ -28965,6 +28965,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 707803dece342f34cb7db5c3ff81d7b6, type: 2}
+    - target: {fileID: 64841498948316766, guid: 96763b22b987cd944be576d435d1acac, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30858,7 +30862,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4306063990421468, guid: 96763b22b987cd944be576d435d1acac, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.35
+      value: -0.4418609
       objectReference: {fileID: 0}
     - target: {fileID: 4306063990421468, guid: 96763b22b987cd944be576d435d1acac, type: 3}
       propertyPath: m_LocalPosition.z
@@ -30890,6 +30894,10 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 707803dece342f34cb7db5c3ff81d7b6, type: 2}
     - target: {fileID: 64841498948316766, guid: 96763b22b987cd944be576d435d1acac, type: 3}
       propertyPath: m_Convex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 64841498948316766, guid: 96763b22b987cd944be576d435d1acac, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -43434,7 +43442,7 @@ MonoBehaviour:
   emptyMagVolume: 1
   hitVolume: 0.75
   deathVolume: 0.75
-  deathDelay: 3.5
+  deathDelay: 5
 --- !u!143 &850762980
 CharacterController:
   m_ObjectHideFlags: 0
@@ -69477,7 +69485,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   uiManager: {fileID: 995242910}
   directionalLight: {fileID: 410087040}
-  realMinutesPerGameDay: 2
+  realMinutesPerGameDay: 4
   daysSurvived: 1
   allyNPCsParent: {fileID: 1106570013}
   enemyNPCsParent: {fileID: 1662089599}
@@ -71968,6 +71976,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_Barricade_Wood_01 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 1613338525533648, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
+      propertyPath: m_TagString
+      value: Bullet
+      objectReference: {fileID: 0}
     - target: {fileID: 4040119161413390, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
       propertyPath: m_RootOrder
       value: 204
@@ -71999,6 +72011,14 @@ PrefabInstance:
     - target: {fileID: 4040119161413390, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 64238365990481790, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
+      propertyPath: m_Convex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 64238365990481790, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -80848,6 +80868,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_Barricade_Wood_01 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 1613338525533648, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
+      propertyPath: m_TagString
+      value: Bullet
+      objectReference: {fileID: 0}
     - target: {fileID: 4040119161413390, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
       propertyPath: m_RootOrder
       value: 203
@@ -80883,6 +80907,14 @@ PrefabInstance:
     - target: {fileID: 4040119161413390, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0.051561434
+      objectReference: {fileID: 0}
+    - target: {fileID: 64238365990481790, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
+      propertyPath: m_Convex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 64238365990481790, guid: 1bfe78583c75cef46ab918d2eb2ae905, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -101064,6 +101096,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 707803dece342f34cb7db5c3ff81d7b6, type: 2}
+    - target: {fileID: 64841498948316766, guid: 96763b22b987cd944be576d435d1acac, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -32,4 +32,9 @@ public class MenuManager : MonoBehaviour
     {
         SceneManager.LoadScene("GameMainMenu");
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }
